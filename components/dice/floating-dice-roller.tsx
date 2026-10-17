@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Dices, X, RotateCcw, Sparkles, Skull } from "lucide-react";
+import Image from "next/image";
+import { X, RotateCcw, Sparkles, Skull } from "lucide-react";
 import { rollPolyhedralDice } from "@/lib/dnd/rules";
 import type { PolyhedralRollResult } from "@/lib/dnd/types";
 
@@ -32,14 +33,20 @@ export function FloatingDiceRoller() {
 
   return (
     <>
-      {/* Botão Flutuante de Acesso Rápido (Posicionado acima da barra inferior no mobile) */}
+      {/* Botão Flutuante de Acesso Rápido com o Ícone Oficial d20 */}
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        aria-label="Abrir Rolador de Dados"
-        className="fixed bottom-20 right-4 z-40 md:bottom-6 md:right-6 flex h-12 w-12 md:h-14 md:w-14 items-center justify-center rounded-full bg-gradient-to-b from-torch-bright to-torch text-dungeon-abyss shadow-torch-glow transition-transform active:scale-95"
+        aria-label="Abrir Rolador de Dados d20"
+        className="fixed bottom-20 right-4 z-40 md:bottom-6 md:right-6 flex h-13 w-13 md:h-14 md:w-14 items-center justify-center rounded-full border-2 border-torch-bright bg-dungeon-stone p-2 shadow-torch-glow transition-transform hover:scale-105 active:scale-95"
       >
-        <Dices className="h-6 w-6" />
+        <Image
+          src="/d20-icon.png"
+          alt="Rolar Dados d20"
+          width={36}
+          height={36}
+          className="h-8 w-8 object-contain"
+        />
       </button>
 
       {/* Drawer / Modal Leve para Celulares e Desktop */}
@@ -47,10 +54,16 @@ export function FloatingDiceRoller() {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 p-0 sm:p-4">
           <div className="w-full max-w-md rounded-t-2xl sm:rounded-2xl border border-stone-800 bg-dungeon-stone p-4 sm:p-5 shadow-dungeon-card pb-safe max-h-[88dvh] flex flex-col">
             <div className="flex items-center justify-between border-b border-stone-800 pb-3">
-              <div className="flex items-center gap-2">
-                <Dices className="h-5 w-5 text-torch-bright" />
+              <div className="flex items-center gap-2.5">
+                <Image
+                  src="/d20-icon.png"
+                  alt="d20"
+                  width={24}
+                  height={24}
+                  className="h-6 w-6 object-contain"
+                />
                 <h2 className="font-display text-base font-bold text-dungeon-parchment">
-                  Rolador de Dados D&D 3.5
+                  Rolador de Dados — Dragões & Masmorras
                 </h2>
               </div>
               <button

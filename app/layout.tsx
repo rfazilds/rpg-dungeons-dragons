@@ -23,7 +23,7 @@ const fontMono = JetBrains_Mono({
   variable: "--font-mono",
   display: "swap",
   weight: ["500", "700"],
-  preload: false, // Carregado sob demanda para economizar banda móvel inicial
+  preload: false,
 });
 
 export const viewport: Viewport = {
@@ -36,15 +36,20 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Sanctum D&D 3.5 | Grimório & Escudo do Mestre",
-    template: "%s | Sanctum D&D 3.5",
+    default: "Dragões & Masmorras | D&D 3.5",
+    template: "%s | Dragões & Masmorras",
   },
   description:
-    "Plataforma Dark Dungeon ultra-leve e responsiva para mesas de RPG Dungeons & Dragons 3.5 — Criação Guiada de Personagens, Fichas Interativas, Escudo do Mestre e 16 Aventuras Canônicas.",
+    "Plataforma Dark Dungeon responsiva para mesas de RPG Dragões & Masmorras (D&D 3.5) — Criação Guiada de Personagens, Fichas Interativas, Escudo do Mestre e 16 Aventuras Canônicas.",
+  icons: {
+    icon: "/d20-icon.png",
+    shortcut: "/d20-icon.png",
+    apple: "/d20-icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Sanctum 3.5",
+    title: "Dragões & Masmorras",
   },
   formatDetection: {
     telephone: false,

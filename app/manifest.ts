@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Sanctum D&D 3.5 — Grimório & Escudo do Mestre",
-    short_name: "Sanctum 3.5",
+    name: "Dragões & Masmorras — Grimório & Escudo D&D 3.5",
+    short_name: "Dragões & Masmorras",
     description:
-      "Plataforma leve e responsiva para mesas de RPG Dungeons & Dragons 3.5",
+      "Plataforma leve e responsiva para mesas de RPG Dragões & Masmorras (D&D 3.5)",
     start_url: "/dashboard",
     display: "standalone",
     background_color: "#0b0d10",
@@ -13,9 +13,9 @@ export default function manifest(): MetadataRoute.Manifest {
     orientation: "portrait-primary",
     icons: [
       {
-        src: "/icon.svg",
-        sizes: "any",
-        type: "image/svg+xml",
+        src: "/d20-icon.png",
+        sizes: "512x512",
+        type: "image/png",
       },
     ],
   };

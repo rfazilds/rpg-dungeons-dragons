@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Users,
@@ -63,7 +64,14 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-torch/40 bg-torch/15 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-torch-glow">
-              Sistema D&D Edição 3.5 Ativo
+              <Image
+                src="/d20-icon.png"
+                alt="d20"
+                width={14}
+                height={14}
+                className="h-3.5 w-3.5 object-contain"
+              />
+              Dragões & Masmorras • D&D Edição 3.5
             </span>
             <h1 className="mt-2 font-display text-xl sm:text-2xl font-bold text-dungeon-parchment">
               Salão da Guilda & Escudo do Mestre

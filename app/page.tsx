@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import {
-  Shield,
   Flame,
   KeyRound,
   Mail,
@@ -38,9 +38,7 @@ function AuthGateContent() {
         "O login com Google requer as variáveis AUTH_GOOGLE_ID e AUTH_GOOGLE_SECRET configuradas no .env.local e na Vercel."
       );
     } else if (urlError === "OAuthAccountNotLinked") {
-      setError(
-        "Este e-mail já está vinculado a outro método de login."
-      );
+      setError("Este e-mail já está vinculado a outro método de login.");
     } else if (urlError === "AccessDenied") {
       setError("Acesso cancelado ou negado pelo Google.");
     } else {
@@ -112,7 +110,6 @@ function AuthGateContent() {
           return;
         }
 
-        // Autentica automaticamente após cadastrar no Neon
         await signIn("credentials", {
           email: parsed.data.email,
           password: parsed.data.password,
@@ -145,21 +142,39 @@ function AuthGateContent() {
   return (
     <div className="min-h-[100dvh] flex flex-col justify-center px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto w-full max-w-md">
-        {/* Emblema da Fortaleza */}
+        {/* Logo Oficial Dungeons & Dragons + Título Dragões & Masmorras */}
         <div className="text-center">
-          <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-torch/50 bg-torch/15 text-torch-bright shadow-torch-glow">
-            <Shield className="h-7 w-7" />
+          <div className="mx-auto flex justify-center">
+            <Image
+              src="/Dungeons-Dragons-Logo-2000.png"
+              alt="Dragões & Masmorras — Dungeons & Dragons"
+              width={320}
+              height={97}
+              priority
+              className="w-64 sm:w-80 h-auto drop-shadow-[0_6px_18px_rgba(217,119,6,0.35)]"
+            />
           </div>
-          <h1 className="mt-4 font-display text-2xl sm:text-3xl font-bold tracking-wider text-dungeon-parchment">
-            SANCTUM D&D 3.5
-          </h1>
-          <p className="mt-1.5 text-xs sm:text-sm text-slate-400">
+
+          <div className="mt-3 inline-flex items-center justify-center gap-2">
+            <Image
+              src="/d20-icon.png"
+              alt="Ícone d20"
+              width={26}
+              height={26}
+              className="h-6 w-6 object-contain"
+            />
+            <h1 className="font-display text-xl sm:text-2xl font-bold tracking-wider text-dungeon-parchment">
+              DRAGÕES & MASMORRAS
+            </h1>
+          </div>
+
+          <p className="mt-1 text-xs sm:text-sm text-slate-400">
             Grimório de Personagens, Escudo do Mestre & Acervo Canônico v.3.5
           </p>
         </div>
 
         {/* Painel de Pedra Esculpida */}
-        <div className="mt-6 dungeon-panel p-5 sm:p-7">
+        <div className="mt-5 dungeon-panel p-5 sm:p-7">
           {/* Alternância Entrar / Cadastrar */}
           <div className="grid grid-cols-2 gap-1.5 rounded-lg border border-stone-800 bg-dungeon-abyss p-1">
             <button
@@ -354,7 +369,7 @@ function AuthGateContent() {
               onClick={() =>
                 setSessionCookieAndRedirect(
                   "Mestre & Jogador D&D 3.5",
-                  "mesa@sanctum.dnd"
+                  "mesa@dragoes.dnd"
                 )
               }
               className="flex min-h-[42px] w-full items-center justify-center gap-2 rounded-lg border border-torch/30 bg-torch/10 px-3 py-2 text-xs font-medium text-torch-glow hover:bg-torch/20 transition-colors"
@@ -378,7 +393,7 @@ export default function AuthGatePage() {
     <Suspense
       fallback={
         <div className="min-h-[100dvh] flex items-center justify-center text-xs text-slate-400">
-          Carregando portões do Sanctum...
+          Carregando Dragões & Masmorras...
         </div>
       }
     >

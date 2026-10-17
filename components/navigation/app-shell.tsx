@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
-  Shield,
   Users,
   UserPlus,
   Swords,
@@ -18,7 +18,7 @@ import { FloatingDiceRoller } from "@/components/dice/floating-dice-roller";
 const NAV_ITEMS = [
   {
     href: "/dashboard",
-    label: "Salão",
+    label: "Salão Principal",
     shortLabel: "Salão",
     icon: Compass,
   },
@@ -62,17 +62,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-[100dvh] flex flex-col md:flex-row bg-dungeon-abyss text-dungeon-parchment">
       {/* Top Bar Compacta Mobile */}
-      <header className="sticky top-0 z-30 flex md:hidden items-center justify-between border-b border-stone-800/90 bg-dungeon-abyss/95 px-4 py-2.5">
-        <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-torch/40 bg-torch/15 text-torch-bright">
-            <Shield className="h-4 w-4" />
-          </div>
+      <header className="sticky top-0 z-30 flex md:hidden items-center justify-between border-b border-stone-800/90 bg-dungeon-abyss/95 px-3.5 py-2">
+        <Link href="/dashboard" className="flex items-center gap-2.5">
+          <Image
+            src="/d20-icon.png"
+            alt="d20"
+            width={28}
+            height={28}
+            className="h-7 w-7 object-contain"
+          />
           <div>
-            <span className="font-display text-sm font-bold tracking-wider text-dungeon-parchment">
-              SANCTUM 3.5
+            <span className="font-display text-xs font-bold tracking-wider text-dungeon-parchment">
+              DRAGÕES & MASMORRAS
             </span>
             <span className="block text-[10px] text-slate-400 leading-none">
-              Dungeons & Dragons v.3.5
+              Sistema D&D v.3.5
             </span>
           </div>
         </Link>
@@ -89,16 +93,28 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar Desktop */}
       <aside className="hidden md:flex md:w-64 md:flex-col md:fixed md:inset-y-0 border-r border-stone-800/90 bg-dungeon-stone/90">
-        <div className="flex items-center gap-3 px-5 py-5 border-b border-stone-800">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-torch/50 bg-torch/15 text-torch-bright shadow-torch-glow">
-            <Shield className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="font-display text-base font-bold tracking-wider text-dungeon-parchment">
-              SANCTUM 3.5
-            </h1>
-            <p className="text-xs text-slate-400">Grimório & Escudo D&D</p>
-          </div>
+        <div className="px-4 py-4 border-b border-stone-800 text-center">
+          <Link href="/dashboard" className="block">
+            <Image
+              src="/Dungeons-Dragons-Logo-2000.png"
+              alt="Dragões & Masmorras"
+              width={220}
+              height={67}
+              className="mx-auto w-48 h-auto drop-shadow-[0_4px_12px_rgba(217,119,6,0.3)]"
+            />
+            <div className="mt-2 inline-flex items-center justify-center gap-1.5">
+              <Image
+                src="/d20-icon.png"
+                alt="d20"
+                width={18}
+                height={18}
+                className="h-4 w-4 object-contain"
+              />
+              <span className="font-display text-xs font-bold tracking-wider text-dungeon-parchment">
+                DRAGÕES & MASMORRAS
+              </span>
+            </div>
+          </Link>
         </div>
 
         <nav className="flex-1 space-y-1.5 px-3 py-4">
@@ -129,11 +145,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
         <div className="border-t border-stone-800 p-4">
           <div className="rounded-lg border border-stone-800 bg-dungeon-abyss/80 p-3 text-xs text-slate-400">
-            <p className="font-semibold text-dungeon-parchment">
-              Acervo Canônico D&D 3.5
-            </p>
-            <p className="mt-0.5 text-[11px]">
-              3 Livros Básicos + Ficha 3.5 + 16 Aventuras (N1–N20) ativos.
+            <div className="flex items-center gap-2">
+              <Image
+                src="/d20-icon.png"
+                alt="d20"
+                width={20}
+                height={20}
+                className="h-5 w-5 object-contain shrink-0"
+              />
+              <p className="font-semibold text-dungeon-parchment">
+                Acervo D&D 3.5 Ativo
+              </p>
+            </div>
+            <p className="mt-1 text-[11px]">
+              3 Livros Básicos + Ficha 3.5 + 16 Aventuras (N1–N20).
             </p>
           </div>
           <button

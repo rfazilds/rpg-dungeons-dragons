@@ -28,25 +28,25 @@ const CORE_BOOKS = [
     title: "Livro do Jogador D&D 3.5",
     pages: "268 págs",
     file: "Livro do Jogador D&D 3.5.pdf",
-    badge: "Regras de Personagem",
+    badge: "Regras de personagem",
   },
   {
     title: "Livro do Mestre D&D 3.5",
     pages: "321 págs",
     file: "Livro do Mestre D&D 3.5.pdf",
-    badge: "Encontros, XP & Tesouros",
+    badge: "Encontros, XP e tesouros",
   },
   {
     title: "Livro dos Monstros D&D 3.5",
     pages: "322 págs",
     file: "Livro dos Monstros D&D 3.5.pdf",
-    badge: "Bestiário Canônico",
+    badge: "Bestiário canônico",
   },
   {
-    title: "Ficha Oficial D&D 3.5",
+    title: "Ficha oficial D&D 3.5",
     pages: "2 págs",
     file: "ficha-personagem-dnd-35.pdf",
-    badge: "Planilha Oficial",
+    badge: "Planilha oficial",
   },
 ];
 
@@ -71,29 +71,36 @@ export default function DashboardPage() {
                 height={14}
                 className="h-3.5 w-3.5 object-contain"
               />
-              Dragões & Masmorras • D&D Edição 3.5
+              Dragões & Masmorras • D&D edição 3.5
             </span>
             <h1 className="mt-2 font-display text-xl sm:text-2xl font-bold text-dungeon-parchment">
-              Salão da Guilda & Escudo do Mestre
+              Salão principal e escudo do mestre
             </h1>
             <p className="mt-1 text-xs sm:text-sm text-slate-400 max-w-2xl">
               Gerencie suas fichas 3.5 interativas, crie personagens com o
               assistente inteligente de sinergias raciais ou conduza combates e
-              aventuras pelo celular ou PC.
+              aventuras pelo celular ou computador.
             </p>
           </div>
 
-          <div className="flex flex-col xs:flex-row sm:flex-shrink-0 gap-2.5">
+          <div className="flex flex-wrap sm:flex-shrink-0 gap-2.5">
             <Link href="/characters/new" className="runic-button">
               <UserPlus className="h-4 w-4" />
-              <span>+ Criar Personagem</span>
+              <span>+ Criar personagem</span>
             </Link>
             <Link
-              href="/dm"
-              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-stone-700 bg-dungeon-slate px-4 py-2.5 text-sm font-semibold text-dungeon-parchment hover:border-torch/60 transition-colors"
+              href="/tables"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-torch/50 bg-torch/15 px-4 py-2.5 text-sm font-semibold text-torch-glow hover:bg-torch/25 transition-colors"
             >
               <Swords className="h-4 w-4 text-torch-bright" />
-              <span>Escudo do Mestre</span>
+              <span>Mesas de jogo</span>
+            </Link>
+            <Link
+              href="/dm-screen"
+              className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-stone-700 bg-dungeon-slate px-4 py-2.5 text-sm font-semibold text-dungeon-parchment hover:border-torch/60 transition-colors"
+            >
+              <Shield className="h-4 w-4 text-torch-bright" />
+              <span>Escudo do mestre</span>
             </Link>
           </div>
         </div>
@@ -111,7 +118,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h2 className="font-display text-base sm:text-lg font-bold text-dungeon-parchment">
-                    Módulo do Jogador
+                    Módulo do jogador
                   </h2>
                   <p className="text-xs text-slate-400">
                     {characters.length} personagem(ns) pronto(s) para jogo
@@ -142,7 +149,7 @@ export default function DashboardPage() {
                       </p>
                       <p className="text-xs text-slate-400">
                         {race?.name || char.race} • {cls?.name || char.class}{" "}
-                        Nv. {char.level} ({char.alignment})
+                        nv. {char.level} ({char.alignment})
                       </p>
                     </div>
                     <div className="flex items-center gap-3 shrink-0 ml-2">
@@ -165,7 +172,7 @@ export default function DashboardPage() {
               href="/characters"
               className="flex min-h-[42px] items-center justify-center rounded-lg border border-stone-800 bg-dungeon-abyss text-xs font-semibold text-slate-200 hover:border-stone-700"
             >
-              Meus Personagens
+              Meus personagens
             </Link>
             <Link
               href="/characters/new"
@@ -186,10 +193,10 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h2 className="font-display text-base sm:text-lg font-bold text-dungeon-parchment">
-                    Escudo do Mestre (DM Screen)
+                    Escudo do mestre
                   </h2>
                   <p className="text-xs text-slate-400">
-                    Iniciativa, Calculadora ND/NE, Compêndio e 16 Aventuras
+                    Iniciativa, calculadora ND/NE, compêndio e 16 aventuras
                   </p>
                 </div>
               </div>
@@ -197,7 +204,7 @@ export default function DashboardPage() {
                 href="/dm"
                 className="text-xs font-semibold text-arcane-bright hover:underline inline-flex items-center gap-1"
               >
-                Abrir Escudo <ChevronRight className="h-3.5 w-3.5" />
+                Abrir escudo <ChevronRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
@@ -207,7 +214,7 @@ export default function DashboardPage() {
                 className="rounded-lg border border-stone-800 bg-dungeon-abyss/80 p-3 hover:border-torch/50 transition-colors"
               >
                 <div className="flex items-center gap-2 text-xs font-semibold text-torch-glow">
-                  <Swords className="h-4 w-4" /> Rastreador de Iniciativa
+                  <Swords className="h-4 w-4" /> Rastreador de iniciativa
                 </div>
                 <p className="mt-1 text-[11px] text-slate-400">
                   Ordem automática de turnos, rodadas, PV e condições.
@@ -219,7 +226,7 @@ export default function DashboardPage() {
                 className="rounded-lg border border-stone-800 bg-dungeon-abyss/80 p-3 hover:border-arcane/50 transition-colors"
               >
                 <div className="flex items-center gap-2 text-xs font-semibold text-arcane-bright">
-                  <Calculator className="h-4 w-4" /> Calculadora de Encontro 3.5
+                  <Calculator className="h-4 w-4" /> Calculadora de encontro 3.5
                 </div>
                 <p className="mt-1 text-[11px] text-slate-400">
                   Cálculo oficial de NE, dificuldade e XP por jogador.
@@ -234,13 +241,13 @@ export default function DashboardPage() {
               className="flex min-h-[42px] items-center justify-center gap-1.5 rounded-lg border border-stone-800 bg-dungeon-abyss text-xs font-semibold text-slate-200 hover:border-stone-700"
             >
               <BookOpen className="h-3.5 w-3.5 text-torch-bright" />
-              <span>16 Aventuras (N1–N20)</span>
+              <span>16 aventuras (N1–N20)</span>
             </Link>
             <Link
               href="/dm?tab=compendium"
               className="flex min-h-[42px] items-center justify-center gap-1.5 rounded-lg border border-arcane/40 bg-arcane/15 text-xs font-semibold text-arcane-bright hover:bg-arcane/25"
             >
-              <span>Compêndio Monstros & Magias</span>
+              <span>Compêndio de monstros e magias</span>
             </Link>
           </div>
         </section>
@@ -251,18 +258,18 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-3">
           <div>
             <h2 className="font-display text-base font-bold text-dungeon-parchment">
-              Acervo Canônico D&D 3.5 (`/assets`)
+              Acervo canônico D&D 3.5
             </h2>
             <p className="text-xs text-slate-400">
               Consulte os livros oficiais ou carregue qualquer uma das{" "}
-              {DND_ADVENTURES.length} aventuras prontas no Escudo do Mestre.
+              {DND_ADVENTURES.length} aventuras prontas no escudo do mestre.
             </p>
           </div>
           <Link
             href="/dm?tab=adventures"
             className="text-xs font-semibold text-torch-bright hover:underline"
           >
-            Explorar as 16 Aventuras Prontas →
+            Explorar as 16 aventuras prontas →
           </Link>
         </div>
 

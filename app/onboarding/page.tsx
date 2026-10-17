@@ -80,7 +80,7 @@ export default function OnboardingPage() {
     if (!userId || !username) return;
     if (!USERNAME_REGEX.test(username)) {
       setAvailable(false);
-      setStatusMessage("Use 3 a 30 letras, números ou underscores (_).");
+      setStatusMessage("Use de 3 a 30 letras, números ou underscores (_).");
       return;
     }
 
@@ -148,7 +148,7 @@ export default function OnboardingPage() {
   if (loadingProfile) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center bg-dungeon-abyss text-xs text-slate-400">
-        Preparando seu registro no Salão da Guilda...
+        Preparando seu registro no salão da guilda...
       </div>
     );
   }
@@ -165,10 +165,10 @@ export default function OnboardingPage() {
             className="mx-auto h-11 w-11 object-contain"
           />
           <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-torch/40 bg-torch/10 px-3 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-torch-glow">
-            <Sparkles className="h-3 w-3" /> Boas-vindas ao Salão da Guilda
+            <Sparkles className="h-3 w-3" /> Boas-vindas ao salão da guilda
           </span>
           <h1 className="mt-2 font-display text-xl sm:text-2xl font-bold text-dungeon-parchment">
-            Escolha seu Nickname na Guilda
+            Escolha seu nickname na guilda
           </h1>
           <p className="mt-1 text-xs text-slate-400">
             Seu identificador único <span className="text-torch-glow">@nickname</span> permite que mestres e amigos encontrem você na comunidade.
@@ -203,7 +203,7 @@ export default function OnboardingPage() {
 
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-1">
-              Seu Nickname Único (apenas letras, números e _)
+              Seu nickname único (apenas letras, números e _)
             </label>
             <div className="relative">
               <AtSign className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-torch-glow" />
@@ -219,7 +219,7 @@ export default function OnboardingPage() {
                   )
                 }
                 className="carved-input pl-9 font-mono text-sm"
-                placeholder="ex: mago_supremo"
+                placeholder="ex.: mago_supremo"
                 autoFocus
               />
             </div>
@@ -246,7 +246,7 @@ export default function OnboardingPage() {
           {/* Escolha rápida de Avatar (Google ou Presets da Guilda) */}
           <div>
             <label className="block text-xs font-medium text-slate-300 mb-2">
-              Emblema / Avatar Inicial
+              Emblema ou avatar inicial
             </label>
             <div className="flex flex-wrap items-center gap-2">
               {oauthImage && (
@@ -264,7 +264,7 @@ export default function OnboardingPage() {
                     oauthImage={oauthImage}
                     size="sm"
                   />
-                  <span>Foto Google</span>
+                  <span>Foto do Google</span>
                 </button>
               )}
 
@@ -293,8 +293,8 @@ export default function OnboardingPage() {
           >
             <span>
               {saving
-                ? "Gravando nos Arquivos da Guilda..."
-                : "Confirmar com 1 Clique & Entrar"}
+                ? "Gravando nos arquivos da guilda..."
+                : "Confirmar com 1 clique e entrar"}
             </span>
             <ArrowRight className="h-4 w-4" />
           </button>

@@ -17,6 +17,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { AppShell } from "@/components/navigation/app-shell";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { DND_ADVENTURES } from "@/lib/dnd/data/adventures";
 import {
   DND_MONSTERS,
@@ -255,16 +256,17 @@ function DmScreenContent() {
 
   return (
     <div className="space-y-5">
+      <Breadcrumbs items={[{ label: "Escudo do mestre" }]} />
       {/* Cabeçalho e Abas do Escudo do Mestre */}
       <div className="dungeon-panel p-4 sm:p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div>
             <h1 className="font-display text-xl sm:text-2xl font-bold text-dungeon-parchment">
-              Escudo do Mestre D&D 3.5 (DM Screen)
+              Escudo do mestre D&D 3.5
             </h1>
             <p className="text-xs sm:text-sm text-slate-400">
-              Rastreador de Iniciativa, Calculadora de Encontros (ND/NE/XP), 16
-              Aventuras Oficiais e Compêndio Rápido.
+              Rastreador de iniciativa, calculadora de encontros (ND/NE/XP), 16
+              aventuras oficiais e compêndio rápido.
             </p>
           </div>
         </div>
@@ -273,7 +275,7 @@ function DmScreenContent() {
           {[
             { id: "tracker", label: "Iniciativa", icon: Swords },
             { id: "calculator", label: "Calculadora ND/XP", icon: Calculator },
-            { id: "adventures", label: "16 Aventuras (PDF)", icon: BookOpen },
+            { id: "adventures", label: "16 aventuras (PDF)", icon: BookOpen },
             { id: "compendium", label: "Compêndio 3.5", icon: Search },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -315,10 +317,10 @@ function DmScreenContent() {
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-800 pb-3">
               <div>
                 <span className="text-xs font-semibold uppercase tracking-wider text-torch-glow">
-                  Rodada Atual: {round}
+                  Rodada atual: {round}
                 </span>
                 <h2 className="font-display text-base font-bold text-dungeon-parchment">
-                  Ordem de Iniciativa ({sortedCombatants.length} combatentes)
+                  Ordem de iniciativa ({sortedCombatants.length} combatentes)
                 </h2>
               </div>
 
@@ -329,7 +331,7 @@ function DmScreenContent() {
                   className="inline-flex min-h-[40px] items-center gap-1.5 rounded-lg border border-stone-700 bg-dungeon-abyss px-3 py-1.5 text-xs font-semibold text-slate-200 hover:border-torch/50"
                 >
                   <Dices className="h-3.5 w-3.5 text-torch-bright" />
-                  <span>Rolar Iniciativas</span>
+                  <span>Rolar iniciativas</span>
                 </button>
                 <button
                   type="button"
@@ -337,7 +339,7 @@ function DmScreenContent() {
                   className="runic-button text-xs py-2"
                 >
                   <Play className="h-3.5 w-3.5" />
-                  <span>Próximo Turno</span>
+                  <span>Próximo turno</span>
                 </button>
               </div>
             </div>
@@ -389,7 +391,7 @@ function DmScreenContent() {
                             </span>
                             {isCurrentTurn && (
                               <span className="rounded bg-torch px-1.5 py-0.5 text-[10px] font-bold text-dungeon-abyss">
-                                TURNO ATIVO
+                                Turno ativo
                               </span>
                             )}
                           </div>
@@ -458,17 +460,17 @@ function DmScreenContent() {
           {/* Formulário Rápido para Adicionar Combatente */}
           <div className="dungeon-panel p-4 sm:p-5 h-fit">
             <h3 className="font-display text-base font-bold text-dungeon-parchment">
-              Adicionar Combatente
+              Adicionar combatente
             </h3>
             <p className="text-xs text-slate-400">
               Insira um jogador ou monstro manualmente ou adicione direto pelo
-              Compêndio 3.5.
+              compêndio 3.5.
             </p>
 
             <form onSubmit={handleAddCombatant} className="mt-3 space-y-3">
               <div>
                 <label className="block text-xs text-slate-300 mb-1">
-                  Nome do Combatente
+                  Nome do combatente
                 </label>
                 <input
                   type="text"
@@ -529,7 +531,7 @@ function DmScreenContent() {
                 </div>
                 <div>
                   <label className="block text-[11px] text-slate-400 mb-1">
-                    PV Máx
+                    PV máx
                   </label>
                   <input
                     type="number"
@@ -542,7 +544,7 @@ function DmScreenContent() {
 
               <button type="submit" className="runic-button w-full">
                 <Plus className="h-4 w-4" />
-                <span>Inserir na Iniciativa</span>
+                <span>Inserir na iniciativa</span>
               </button>
             </form>
           </div>
@@ -556,13 +558,13 @@ function DmScreenContent() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 dungeon-panel p-4 sm:p-5 space-y-4">
             <h2 className="font-display text-base font-bold text-dungeon-parchment">
-              Configuração do Grupo e Monstros (Regra D&D 3.5)
+              Configuração do grupo e monstros (regra D&D 3.5)
             </h2>
 
             <div className="grid grid-cols-2 gap-3 rounded-xl border border-stone-800 bg-dungeon-abyss p-3.5">
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Quantidade de Jogadores (PJs)
+                  Quantidade de jogadores (PJs)
                 </label>
                 <input
                   type="number"
@@ -577,7 +579,7 @@ function DmScreenContent() {
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1">
-                  Nível Médio do Grupo (NEP: 1 a 20)
+                  Nível médio do grupo (NEP: 1 a 20)
                 </label>
                 <input
                   type="number"
@@ -600,7 +602,7 @@ function DmScreenContent() {
             <div className="space-y-2.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  Grupos de Criaturas no Encontro
+                  Grupos de criaturas no encontro
                 </span>
                 <button
                   type="button"
@@ -609,7 +611,7 @@ function DmScreenContent() {
                       ...prev,
                       {
                         id: `eg-${Date.now()}`,
-                        label: "Novo Grupo de Monstros",
+                        label: "Novo grupo de monstros",
                         cr: String(partyLevel),
                         count: 1,
                       },
@@ -727,7 +729,7 @@ function DmScreenContent() {
           <div className="dungeon-panel p-4 sm:p-5 flex flex-col justify-between">
             <div>
               <span className="text-xs font-semibold uppercase tracking-wider text-arcane-bright">
-                Resultado Livro do Mestre 3.5
+                Resultado do Livro do Mestre 3.5
               </span>
               <h3 className="mt-1 font-display text-lg font-bold text-dungeon-parchment">
                 Classificação: {encounterResult.difficulty}
@@ -739,7 +741,7 @@ function DmScreenContent() {
               <div className="mt-4 grid grid-cols-2 gap-2.5 text-center">
                 <div className="rounded-xl border border-stone-800 bg-dungeon-abyss p-3">
                   <span className="block text-[10px] uppercase text-slate-400">
-                    Nível de Encontro (NE)
+                    Nível de encontro (NE)
                   </span>
                   <span className="font-display text-3xl font-extrabold text-torch-glow">
                     NE {encounterResult.encounterLevel}
@@ -747,7 +749,7 @@ function DmScreenContent() {
                 </div>
                 <div className="rounded-xl border border-stone-800 bg-dungeon-abyss p-3">
                   <span className="block text-[10px] uppercase text-slate-400">
-                    XP por Jogador
+                    XP por jogador
                   </span>
                   <span className="font-display text-2xl font-extrabold text-vital">
                     {encounterResult.xpPerCharacter} XP
@@ -760,8 +762,8 @@ function DmScreenContent() {
             </div>
 
             <div className="mt-4 rounded-lg border border-stone-800 bg-dungeon-abyss/80 p-3 text-[11px] text-slate-400">
-              Regra D&D 3.5: Dobrar o número de criaturas de mesmo ND aumenta o
-              Nível de Encontro (NE) em +2.
+              Regra D&D 3.5: dobrar o número de criaturas de mesmo ND aumenta o
+              nível de encontro (NE) em +2.
             </div>
           </div>
         </div>
@@ -833,13 +835,13 @@ function DmScreenContent() {
                     <div className="mt-3 rounded-lg border border-stone-800 bg-dungeon-abyss/90 p-2.5 text-xs">
                       <p className="text-slate-300">
                         <strong className="text-torch-glow">
-                          Ameaças Principais:
+                          Ameaças principais:
                         </strong>{" "}
                         {adv.keyMonsters.join(", ")}
                       </p>
                       <p className="mt-1 text-slate-300">
                         <strong className="text-crimson-soft">
-                          Encontro Final:
+                          Encontro final:
                         </strong>{" "}
                         {adv.bossEncounter}
                       </p>
@@ -854,7 +856,7 @@ function DmScreenContent() {
                       className="runic-button w-full text-xs"
                     >
                       <BookOpen className="h-4 w-4" />
-                      <span>Abrir Aventura Completa (PDF)</span>
+                      <span>Abrir aventura completa (PDF)</span>
                       <ExternalLink className="h-3.5 w-3.5" />
                     </a>
                   </div>
@@ -940,13 +942,13 @@ function DmScreenContent() {
                         <strong>CA:</strong> {m.armorClass}
                       </p>
                       <p>
-                        <strong>BBA / Agarrar:</strong> {m.baseAttackGrapple}
+                        <strong>BBA / agarrar:</strong> {m.baseAttackGrapple}
                       </p>
                       <p>
                         <strong>Ataque:</strong> {m.attack}
                       </p>
                       <p>
-                        <strong>Qualidades Especiais:</strong>{" "}
+                        <strong>Qualidades especiais:</strong>{" "}
                         {m.specialQualities}
                       </p>
                       <p className="font-mono text-[11px] text-slate-400">
@@ -965,7 +967,7 @@ function DmScreenContent() {
                     onClick={() => addMonsterFromCompendiumToTracker(m)}
                     className="mt-3 min-h-[40px] w-full rounded-lg border border-torch/40 bg-torch/15 text-xs font-semibold text-torch-glow hover:bg-torch/25"
                   >
-                    + Enviar para Rastreador de Iniciativa
+                    + Enviar para rastreador de iniciativa
                   </button>
                 </div>
               ))}
@@ -1021,7 +1023,7 @@ export default function DmScreenPage() {
       <Suspense
         fallback={
           <div className="dungeon-panel p-6 text-center text-xs text-slate-400">
-            Carregando Escudo do Mestre...
+            Carregando escudo do mestre...
           </div>
         }
       >

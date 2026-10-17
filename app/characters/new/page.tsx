@@ -13,6 +13,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { AppShell } from "@/components/navigation/app-shell";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { DND_RACES, getRaceById } from "@/lib/dnd/data/races";
 import { DND_CLASSES, getClassById } from "@/lib/dnd/data/classes";
 import { DND_SKILLS } from "@/lib/dnd/data/skills";
@@ -453,10 +454,16 @@ export default function CharacterCreationWizardPage() {
 
   return (
     <AppShell>
+      <Breadcrumbs
+        items={[
+          { label: "Meus personagens", href: "/characters" },
+          { label: "Criar novo personagem" },
+        ]}
+      />
       {/* Cabeçalho e Barra de Etapas Responsiva */}
       <div className="mb-5">
         <h1 className="font-display text-xl sm:text-2xl font-bold text-dungeon-parchment">
-          Assistente Inteligente de Criação D&D 3.5
+          Assistente inteligente de criação D&D 3.5
         </h1>
         <p className="text-xs sm:text-sm text-slate-400">
           Fluxo guiado oficial do Livro do Jogador v.3.5 com cálculo reativo de
@@ -530,7 +537,7 @@ export default function CharacterCreationWizardPage() {
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {modEntries.length === 0 ? (
                       <span className="rounded border border-torch/40 bg-torch/10 px-2 py-0.5 text-[11px] font-semibold text-torch-glow">
-                        +1 Talento Extra & +4 Perícias Nv 1
+                        +1 talento extra e +4 perícias nv 1
                       </span>
                     ) : (
                       modEntries.map(([k, val]) => {
@@ -566,10 +573,10 @@ export default function CharacterCreationWizardPage() {
                 <Sparkles className="h-5 w-5 text-torch-bright shrink-0" />
                 <div>
                   <h3 className="font-display text-base font-bold text-torch-glow">
-                    Classes Recomendadas para {selectedRace.name}
+                    Classes recomendadas para {selectedRace.name}
                   </h3>
                   <p className="text-xs text-slate-400">
-                    Baseado nos bônus raciais e na Classe Favorecida (
+                    Baseado nos bônus raciais e na classe favorecida (
                     <span className="text-dungeon-parchment font-semibold">
                       {selectedRace.favoredClass}
                     </span>
@@ -613,7 +620,7 @@ export default function CharacterCreationWizardPage() {
                       }}
                       className="mt-3 min-h-[38px] w-full rounded-lg border border-torch/40 bg-torch/20 px-3 py-1.5 text-xs font-semibold text-torch-glow hover:bg-torch/30 transition-colors"
                     >
-                      Selecionar {sug.className} e Avançar →
+                      Selecionar {sug.className} e avançar →
                     </button>
                   </div>
                 );
@@ -623,7 +630,7 @@ export default function CharacterCreationWizardPage() {
             {/* Resumo dos Traços Raciais Injetados Automaticamente */}
             <div className="mt-4 pt-3 border-t border-stone-800">
               <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-                Traços Raciais Injetados Automaticamente ({selectedRace.name}):
+                Traços raciais injetados automaticamente ({selectedRace.name}):
               </p>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-slate-300">
                 {selectedRace.racialTraits.map((trait) => (
@@ -642,7 +649,7 @@ export default function CharacterCreationWizardPage() {
               onClick={() => setStep(2)}
               className="runic-button"
             >
-              <span>Continuar para Escolha da Classe</span>
+              <span>Continuar para escolha da classe</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -707,7 +714,7 @@ export default function CharacterCreationWizardPage() {
                   <div className="mt-3 grid grid-cols-3 gap-1.5 text-center border-t border-stone-800 pt-2.5 text-[11px]">
                     <div className="rounded bg-dungeon-abyss p-1">
                       <span className="block text-[9px] text-slate-500 uppercase">
-                        BBA Nv 1
+                        BBA nv 1
                       </span>
                       <span className="font-mono font-bold text-slate-200">
                         {formatModifier(
@@ -742,12 +749,12 @@ export default function CharacterCreationWizardPage() {
           {/* Detalhes Automáticos da Classe Escolhida */}
           <div className="dungeon-panel p-4 sm:p-5">
             <h3 className="font-display text-base font-bold text-dungeon-parchment">
-              Características Automáticas de {selectedClass.name} (1º Nível)
+              Características automáticas de {selectedClass.name} (1º nível)
             </h3>
             <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
               <div>
                 <p className="font-semibold text-torch-glow uppercase tracking-wider mb-1.5">
-                  Habilidades de Classe Iniciais:
+                  Habilidades de classe iniciais:
                 </p>
                 <ul className="space-y-1 text-slate-300">
                   {selectedClass.level1Features.map((feat) => (
@@ -760,7 +767,7 @@ export default function CharacterCreationWizardPage() {
               </div>
               <div>
                 <p className="font-semibold text-torch-glow uppercase tracking-wider mb-1.5">
-                  Proficiências em Armas e Armaduras:
+                  Proficiências em armas e armaduras:
                 </p>
                 <p className="text-slate-300">
                   <strong>Armaduras:</strong>{" "}
@@ -772,7 +779,7 @@ export default function CharacterCreationWizardPage() {
                 </p>
                 {selectedClass.alignmentRestriction && (
                   <p className="mt-2 rounded border border-torch/30 bg-torch/10 p-2 text-torch-glow">
-                    <strong>Restrição de Tendência D&D 3.5:</strong>{" "}
+                    <strong>Restrição de tendência D&D 3.5:</strong>{" "}
                     {selectedClass.alignmentRestriction}
                   </p>
                 )}
@@ -786,14 +793,14 @@ export default function CharacterCreationWizardPage() {
               onClick={() => setStep(1)}
               className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-stone-700 bg-dungeon-stone px-4 py-2 text-xs font-semibold text-slate-200"
             >
-              <ArrowLeft className="h-4 w-4" /> Voltar para Raça
+              <ArrowLeft className="h-4 w-4" /> Voltar para raça
             </button>
             <button
               type="button"
               onClick={() => setStep(3)}
               className="runic-button"
             >
-              <span>Continuar para Atributos</span>
+              <span>Continuar para atributos</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -810,7 +817,7 @@ export default function CharacterCreationWizardPage() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
                 <h2 className="font-display text-base sm:text-lg font-bold text-dungeon-parchment">
-                  Modalidade de Definição de Atributos
+                  Modalidade de definição de atributos
                 </h2>
                 <p className="text-xs text-slate-400">
                   Os bônus raciais de <strong>{selectedRace.name}</strong> são
@@ -828,7 +835,7 @@ export default function CharacterCreationWizardPage() {
                       : "text-slate-400 hover:text-white"
                   }`}
                 >
-                  1. Dados Virtuais (4d6)
+                  1. Dados virtuais (4d6)
                 </button>
                 <button
                   type="button"
@@ -839,7 +846,7 @@ export default function CharacterCreationWizardPage() {
                       : "text-slate-400 hover:text-white"
                   }`}
                 >
-                  2. Dados Físicos (3–18)
+                  2. Dados físicos (3–18)
                 </button>
               </div>
             </div>
@@ -847,9 +854,9 @@ export default function CharacterCreationWizardPage() {
             {rollMode === "virtual" && (
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-torch/30 bg-torch/10 p-3">
                 <p className="text-xs text-slate-200">
-                  <strong>Regra Oficial 4d6 Drop Lowest:</strong> O sistema rola
-                  4 dados de 6 faces para cada atributo, descarta o menor dado e
-                  soma os 3 maiores.
+                  <strong>Regra oficial 4d6 (descartar o menor):</strong> O
+                  sistema rola 4 dados de 6 faces para cada atributo, descarta o
+                  menor dado e soma os 3 maiores.
                 </p>
                 <button
                   type="button"
@@ -857,14 +864,14 @@ export default function CharacterCreationWizardPage() {
                   className="runic-button text-xs py-2"
                 >
                   <Dices className="h-4 w-4" />
-                  <span>Rolar Todos os 6 Atributos (4d6)</span>
+                  <span>Rolar todos os 6 atributos (4d6)</span>
                 </button>
               </div>
             )}
 
             {rollMode === "physical" && (
               <div className="mt-4 rounded-lg border border-arcane/30 bg-arcane/10 p-3 text-xs text-slate-200">
-                <strong>Modo Dados Físicos:</strong> Role seus dados reais na
+                <strong>Modo dados físicos:</strong> Role seus dados reais na
                 mesa física e digite os valores base obtidos (de 3 a 18) nos
                 campos abaixo.
               </div>
@@ -966,7 +973,7 @@ export default function CharacterCreationWizardPage() {
                       ) : (
                         <div className="flex items-center justify-between gap-2">
                           <label className="text-xs text-slate-300">
-                            Dado Físico (3–18):
+                            Dado físico (3–18):
                           </label>
                           <div className="flex items-center gap-1.5">
                             <input
@@ -1000,14 +1007,14 @@ export default function CharacterCreationWizardPage() {
               onClick={() => setStep(2)}
               className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-stone-700 bg-dungeon-stone px-4 py-2 text-xs font-semibold text-slate-200"
             >
-              <ArrowLeft className="h-4 w-4" /> Voltar para Classe
+              <ArrowLeft className="h-4 w-4" /> Voltar para classe
             </button>
             <button
               type="button"
               onClick={() => setStep(4)}
               className="runic-button"
             >
-              <span>Continuar para Perícias & Finalização</span>
+              <span>Continuar para perícias e finalização</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -1023,12 +1030,12 @@ export default function CharacterCreationWizardPage() {
             {/* Identidade, Tendência e Antecedente */}
             <div className="dungeon-panel p-4 sm:p-5 space-y-4">
               <h2 className="font-display text-base font-bold text-dungeon-parchment">
-                Identidade, Tendência & Antecedente
+                Identidade, tendência e antecedente
               </h2>
 
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Nome do Personagem
+                  Nome do personagem
                 </label>
                 <input
                   type="text"
@@ -1042,7 +1049,7 @@ export default function CharacterCreationWizardPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Tendência (Alinhamento 3.5)
+                    Tendência (alinhamento 3.5)
                   </label>
                   <select
                     value={alignment}
@@ -1059,7 +1066,7 @@ export default function CharacterCreationWizardPage() {
 
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Divindade Patrona
+                    Divindade patrona
                   </label>
                   <input
                     type="text"
@@ -1073,7 +1080,7 @@ export default function CharacterCreationWizardPage() {
 
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  Antecedente & Equipamento Inicial
+                  Antecedente e equipamento inicial
                 </label>
                 <div className="space-y-2">
                   {BACKGROUNDS_35.map((bg) => (
@@ -1109,7 +1116,7 @@ export default function CharacterCreationWizardPage() {
               <div>
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-base font-bold text-dungeon-parchment">
-                    Perícias de Classe ({selectedClass.name})
+                    Perícias de classe ({selectedClass.name})
                   </h2>
                   <span className="rounded border border-torch/40 bg-torch/10 px-2 py-0.5 text-xs font-mono font-bold text-torch-glow">
                     {selectedSkills.length} / {maxFullRankSkills} selecionadas
@@ -1162,12 +1169,12 @@ export default function CharacterCreationWizardPage() {
               {/* Resumo Final Calculado Antes de Salvar */}
               <div className="mt-4 rounded-xl border border-stone-800 bg-dungeon-abyss p-3.5">
                 <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-                  Resumo Calculado da Ficha D&D 3.5 (Nível 1):
+                  Resumo calculado da ficha D&D 3.5 (nível 1):
                 </p>
                 <div className="grid grid-cols-3 gap-2 text-center">
                   <div className="rounded border border-stone-800 bg-dungeon-stone p-2">
                     <span className="flex items-center justify-center gap-1 text-[10px] text-slate-400">
-                      <Heart className="h-3 w-3 text-crimson-soft" /> PV Máximo
+                      <Heart className="h-3 w-3 text-crimson-soft" /> PV máximo
                     </span>
                     <span className="font-mono text-base font-bold text-vital">
                       {Math.max(
@@ -1179,7 +1186,7 @@ export default function CharacterCreationWizardPage() {
                   </div>
                   <div className="rounded border border-stone-800 bg-dungeon-stone p-2">
                     <span className="flex items-center justify-center gap-1 text-[10px] text-slate-400">
-                      <Shield className="h-3 w-3 text-torch-bright" /> BBA Nv 1
+                      <Shield className="h-3 w-3 text-torch-bright" /> BBA nv 1
                     </span>
                     <span className="font-mono text-base font-bold text-torch-glow">
                       {formatModifier(
@@ -1209,7 +1216,7 @@ export default function CharacterCreationWizardPage() {
               onClick={() => setStep(3)}
               className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-stone-700 bg-dungeon-stone px-4 py-2 text-xs font-semibold text-slate-200"
             >
-              <ArrowLeft className="h-4 w-4" /> Voltar para Atributos
+              <ArrowLeft className="h-4 w-4" /> Voltar para atributos
             </button>
 
             <button
@@ -1218,7 +1225,7 @@ export default function CharacterCreationWizardPage() {
               className="runic-button px-6"
             >
               <CheckCircle2 className="h-4 w-4" />
-              <span>Forjar Personagem & Abrir Ficha 3.5</span>
+              <span>Forjar personagem e abrir ficha 3.5</span>
             </button>
           </div>
         </div>

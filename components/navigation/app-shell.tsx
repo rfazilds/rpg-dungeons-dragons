@@ -7,9 +7,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
 import {
   Users,
-  UserPlus,
   Swords,
-  BookOpen,
+  Shield,
   Compass,
   LogOut,
   Settings,
@@ -20,6 +19,7 @@ import {
   X,
   AlertCircle,
   CheckCircle2,
+  ScrollText,
 } from "lucide-react";
 import { FloatingDiceRoller } from "@/components/dice/floating-dice-roller";
 import { AppFooter } from "@/components/navigation/app-footer";
@@ -29,38 +29,36 @@ import { VerificationCodeInput } from "@/components/auth/verification-code-input
 const DESKTOP_NAV_ITEMS = [
   {
     href: "/dashboard",
-    label: "Salão Principal",
+    label: "Salão principal",
     icon: Compass,
   },
   {
     href: "/characters",
-    label: "Meus Personagens",
-    icon: Users,
+    label: "Meus personagens",
+    icon: ScrollText,
   },
   {
-    href: "/characters/new",
-    label: "Criar Personagem",
-    icon: UserPlus,
-  },
-  {
-    href: "/dm",
-    label: "Escudo do Mestre",
+    href: "/tables",
+    label: "Mesas",
     icon: Swords,
+    featured: true,
   },
   {
-    href: "/dm?tab=adventures",
-    label: "Aventuras (N1-N20)",
-    icon: BookOpen,
+    href: "/dm-screen",
+    label: "Escudo do mestre",
+    icon: Shield,
+    matchPrefixes: ["/dm-screen", "/dm"],
   },
   {
     href: "/community",
-    label: "Comunidade & Amigos",
+    label: "Comunidade e amigos",
     icon: UsersRound,
   },
   {
     href: "/settings",
-    label: "Minha Conta",
+    label: "Minha conta",
     icon: Settings,
+    matchPrefixes: ["/settings", "/account"],
   },
 ];
 
@@ -73,22 +71,23 @@ const MOBILE_NAV_ITEMS = [
   {
     href: "/characters",
     shortLabel: "Heróis",
-    icon: Users,
+    icon: ScrollText,
   },
   {
-    href: "/dm",
-    shortLabel: "Mestre",
+    href: "/tables",
+    shortLabel: "Mesas",
     icon: Swords,
+  },
+  {
+    href: "/dm-screen",
+    shortLabel: "Mestre",
+    icon: Shield,
+    matchPrefixes: ["/dm-screen", "/dm"],
   },
   {
     href: "/community",
     shortLabel: "Guilda",
     icon: UsersRound,
-  },
-  {
-    href: "/settings",
-    shortLabel: "Conta",
-    icon: Settings,
   },
 ];
 
@@ -247,7 +246,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <Link
             href="/settings"
             className="flex items-center gap-1.5 rounded-full border border-stone-800 bg-dungeon-stone p-0.5 pr-2.5 text-xs text-dungeon-parchment"
-            title="Minha Conta"
+            title="Minha conta"
           >
             <GuildAvatar
               avatarType={account?.avatarType}
@@ -303,22 +302,31 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             const Icon = item.icon;
             const active =
               pathname === item.href ||
-              (item.href !== "/dashboard" &&
-                !item.href.includes("?") &&
-                pathname.startsWith(item.href));
+              (item.matchPrefixes
+                ? item.matchPrefixes.some((p) => pathname.startsWith(p))
+                : item.href !== "/dashboard" &&
+                  !item.href.includes("?") &&
+                  pathname.startsWith(item.href));
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex items-center justify-between gap-2 rounded-lg px-3.5 py-2.5 text-sm font-medium transition-colors ${
                   active
                     ? "bg-torch/20 text-torch-glow border border-torch/40"
                     : "text-slate-300 hover:bg-dungeon-slate hover:text-white border border-transparent"
                 }`}
               >
-                <Icon className="h-4 w-4 shrink-0" />
-                <span>{item.label}</span>
+                <span className="flex items-center gap-3">
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span>{item.label}</span>
+                </span>
+                {item.featured && (
+                  <span className="rounded border border-torch/40 bg-torch/15 px-1.5 py-0.5 text-[10px] font-bold text-torch-glow">
+                    Novo
+                  </span>
+                )}
               </Link>
             );
           })}
@@ -339,10 +347,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             />
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-semibold text-dungeon-parchment">
-                {account?.name || "Visitante da Mesa"}
+                {account?.name || "Visitante da mesa"}
               </p>
               <p className="truncate font-mono text-[11px] text-torch-glow">
-                {account ? `@${account.username}` : "Modo Demonstração"}
+                {account ? `@${account.username}` : "Modo demonstração"}
               </p>
             </div>
             <span
@@ -357,7 +365,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="flex w-full items-center justify-center gap-2 rounded-lg border border-stone-800 bg-dungeon-abyss px-3 py-2 text-xs font-medium text-slate-300 hover:border-stone-700 hover:text-white"
           >
             <LogOut className="h-3.5 w-3.5" />
-            <span>Trocar Conta / Sair</span>
+            <span>Trocar conta / sair</span>
           </button>
         </div>
       </aside>
@@ -387,7 +395,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   className="inline-flex items-center justify-center gap-1.5 self-start sm:self-auto rounded-md border border-torch/50 bg-torch/20 px-3 py-1 font-semibold text-torch-glow hover:bg-torch/30 transition-colors shrink-0"
                 >
                   <ShieldCheck className="h-3.5 w-3.5" />
-                  <span>Inserir Código de 6 Dígitos</span>
+                  <span>Inserir código de 6 dígitos</span>
                 </button>
               </div>
             </div>
@@ -409,7 +417,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <div className="flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5 text-torch-glow" />
                 <h3 className="font-display text-base font-bold text-dungeon-parchment">
-                  Confirmar E-mail da Guilda
+                  Confirmar e-mail da guilda
                 </h3>
               </div>
               <button
@@ -446,7 +454,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {devPreviewCode && (
               <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 p-2.5 text-center text-xs text-amber-200">
                 <span className="block text-[10px] uppercase tracking-wider text-amber-400">
-                  Código Gerado (Modo Sandbox / Dev)
+                  Código gerado (modo de teste)
                 </span>
                 <span className="font-mono text-base font-bold tracking-widest text-torch-glow">
                   {devPreviewCode}
@@ -469,7 +477,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               >
                 <ShieldCheck className="h-4 w-4" />
                 <span>
-                  {verifying ? "Validando..." : "Ativar E-mail na Guilda"}
+                  {verifying ? "Validando..." : "Ativar e-mail na guilda"}
                 </span>
               </button>
             </form>
@@ -503,14 +511,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {/* Barra de Navegação Inferior Fixa para Todos os Celulares */}
       <nav
-        aria-label="Navegação Mobile"
+        aria-label="Navegação móvel"
         className="fixed bottom-0 inset-x-0 z-30 flex md:hidden items-center justify-around border-t border-stone-800 bg-dungeon-abyss/95 px-1 py-1 pb-safe"
       >
         {MOBILE_NAV_ITEMS.map((item) => {
           const Icon = item.icon;
           const active =
             pathname === item.href ||
-            (item.href !== "/dashboard" && pathname.startsWith(item.href));
+            (item.matchPrefixes
+              ? item.matchPrefixes.some((p) => pathname.startsWith(p))
+              : item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (
             <Link
               key={item.href}

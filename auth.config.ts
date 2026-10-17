@@ -4,7 +4,10 @@ import Google from "next-auth/providers/google";
 const PROTECTED_PREFIXES = [
   "/dashboard",
   "/characters",
+  "/tables",
+  "/campaigns",
   "/dm",
+  "/dm-screen",
   "/compendium",
   "/settings",
   "/account",

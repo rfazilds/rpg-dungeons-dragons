@@ -5,6 +5,7 @@ import {
   varchar,
   text,
   integer,
+  boolean,
   timestamp,
   primaryKey,
   jsonb,
@@ -15,7 +16,7 @@ import { relations } from "drizzle-orm";
 import type { AdapterAccountType } from "next-auth/adapters";
 
 // ============================================================================
-// ENUMS DO BANCO DE DADOS (FASE 2 — VERIFICAÇÃO & COMUNIDADE)
+// ENUMS DO BANCO DE DADOS (FASE 2 & FASE 3 — VERIFICAÇÃO, COMUNIDADE & MESAS)
 // ============================================================================
 
 export const verificationCodeTypeEnum = pgEnum("verification_code_type", [
@@ -27,6 +28,14 @@ export const friendshipStatusEnum = pgEnum("friendship_status", [
   "PENDING",
   "ACCEPTED",
   "BLOCKED",
+]);
+
+export const campaignRoleEnum = pgEnum("campaign_role", ["DM", "PLAYER"]);
+
+export const campaignMessageTypeEnum = pgEnum("campaign_message_type", [
+  "CHAT",
+  "DICE_ROLL",
+  "SYSTEM",
 ]);
 
 // ============================================================================
@@ -355,6 +364,85 @@ export const combatEncounters = pgTable(
 );
 
 // ============================================================================
+// 6. TABELAS DE MESAS DE JOGO & CAMPANHAS (FASE 3 — HUB DE MESAS & CHAT)
+// ============================================================================
+
+export const campaigns = pgTable(
+  "campaigns",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    code: varchar("code", { length: 6 }).notNull().unique(),
+    name: varchar("name", { length: 100 }).notNull(),
+    description: text("description"),
+    dmId: uuid("dm_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    isActive: boolean("is_active").default(true).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("campaigns_code_unique_idx").on(table.code),
+    index("campaigns_dm_id_idx").on(table.dmId),
+  ]
+);
+
+export const campaignMembers = pgTable(
+  "campaign_members",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    campaignId: uuid("campaign_id")
+      .notNull()
+      .references(() => campaigns.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    characterId: uuid("character_id").references(() => characters.id, {
+      onDelete: "set null",
+    }),
+    role: campaignRoleEnum("role").default("PLAYER").notNull(),
+    joinedAt: timestamp("joined_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("campaign_members_campaign_user_unique_idx").on(
+      table.campaignId,
+      table.userId
+    ),
+    index("campaign_members_campaign_id_idx").on(table.campaignId),
+    index("campaign_members_user_id_idx").on(table.userId),
+  ]
+);
+
+export const campaignMessages = pgTable(
+  "campaign_messages",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    campaignId: uuid("campaign_id")
+      .notNull()
+      .references(() => campaigns.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    characterName: varchar("character_name", { length: 100 }),
+    content: text("content").notNull(),
+    type: campaignMessageTypeEnum("type").default("CHAT").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("campaign_messages_campaign_id_idx").on(table.campaignId),
+    index("campaign_messages_created_at_idx").on(table.createdAt),
+  ]
+);
+
+// ============================================================================
 // RELAÇÕES DRIZZLE ORM
 // ============================================================================
 
@@ -368,6 +456,9 @@ export const usersRelations = relations(users, ({ many }) => ({
   receivedFriendRequests: many(friendships, {
     relationName: "receivedFriendships",
   }),
+  createdCampaigns: many(campaigns),
+  campaignMemberships: many(campaignMembers),
+  campaignMessages: many(campaignMessages),
 }));
 
 export const emailVerificationCodesRelations = relations(
@@ -393,11 +484,12 @@ export const friendshipsRelations = relations(friendships, ({ one }) => ({
   }),
 }));
 
-export const charactersRelations = relations(characters, ({ one }) => ({
+export const charactersRelations = relations(characters, ({ one, many }) => ({
   user: one(users, {
     fields: [characters.userId],
     references: [users.id],
   }),
+  campaignMemberships: many(campaignMembers),
 }));
 
 export const combatEncountersRelations = relations(
@@ -405,6 +497,47 @@ export const combatEncountersRelations = relations(
   ({ one }) => ({
     user: one(users, {
       fields: [combatEncounters.userId],
+      references: [users.id],
+    }),
+  })
+);
+
+export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
+  dm: one(users, {
+    fields: [campaigns.dmId],
+    references: [users.id],
+  }),
+  members: many(campaignMembers),
+  messages: many(campaignMessages),
+}));
+
+export const campaignMembersRelations = relations(
+  campaignMembers,
+  ({ one }) => ({
+    campaign: one(campaigns, {
+      fields: [campaignMembers.campaignId],
+      references: [campaigns.id],
+    }),
+    user: one(users, {
+      fields: [campaignMembers.userId],
+      references: [users.id],
+    }),
+    character: one(characters, {
+      fields: [campaignMembers.characterId],
+      references: [characters.id],
+    }),
+  })
+);
+
+export const campaignMessagesRelations = relations(
+  campaignMessages,
+  ({ one }) => ({
+    campaign: one(campaigns, {
+      fields: [campaignMessages.campaignId],
+      references: [campaigns.id],
+    }),
+    user: one(users, {
+      fields: [campaignMessages.userId],
       references: [users.id],
     }),
   })

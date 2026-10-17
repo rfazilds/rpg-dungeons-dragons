@@ -37,12 +37,12 @@ export function FloatingDiceRoller() {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        aria-label="Abrir Rolador de Dados d20"
+        aria-label="Abrir rolador de dados d20"
         className="fixed bottom-20 right-4 z-40 md:bottom-6 md:right-6 flex h-13 w-13 md:h-14 md:w-14 items-center justify-center rounded-full border-2 border-torch-bright bg-dungeon-stone p-2 shadow-torch-glow transition-transform hover:scale-105 active:scale-95"
       >
         <Image
           src="/d20-icon.png"
-          alt="Rolar Dados d20"
+          alt="Rolar dados d20"
           width={36}
           height={36}
           className="h-8 w-8 object-contain"
@@ -63,7 +63,7 @@ export function FloatingDiceRoller() {
                   className="h-6 w-6 object-contain"
                 />
                 <h2 className="font-display text-base font-bold text-dungeon-parchment">
-                  Rolador de Dados — Dragões & Masmorras
+                  Rolador de dados — Dragões & Masmorras
                 </h2>
               </div>
               <button
@@ -79,7 +79,7 @@ export function FloatingDiceRoller() {
             <div className="mt-3 grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-slate-400 mb-1">
-                  Quantidade de Dados
+                  Quantidade de dados
                 </label>
                 <div className="flex items-center gap-1.5">
                   {[1, 2, 3, 4].map((n) => (
@@ -179,12 +179,12 @@ export function FloatingDiceRoller() {
                 <div className="flex items-center justify-center gap-1.5 text-xs uppercase tracking-wider text-slate-400">
                   {latest.isCriticalHit && (
                     <span className="inline-flex items-center gap-1 text-vital font-bold">
-                      <Sparkles className="h-3.5 w-3.5" /> 20 Natural! Ameaça de Sucesso Decisivo!
+                      <Sparkles className="h-3.5 w-3.5" /> 20 natural! Ameaça de sucesso decisivo!
                     </span>
                   )}
                   {latest.isCriticalFumble && (
                     <span className="inline-flex items-center gap-1 text-crimson-soft font-bold">
-                      <Skull className="h-3.5 w-3.5" /> 1 Natural! Falha Automática!
+                      <Skull className="h-3.5 w-3.5" /> 1 natural! Falha automática!
                     </span>
                   )}
                   {!latest.isCriticalHit && !latest.isCriticalFumble && (
@@ -214,7 +214,7 @@ export function FloatingDiceRoller() {
             <div className="mt-3 flex-1 overflow-y-auto min-h-[90px] max-h-[160px] rounded-lg border border-stone-800/80 bg-dungeon-abyss/60 p-2.5">
               <div className="flex items-center justify-between mb-1.5">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-                  Histórico da Sessão ({history.length})
+                  Histórico da sessão ({history.length})
                 </span>
                 {history.length > 0 && (
                   <button

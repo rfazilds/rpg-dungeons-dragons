@@ -15,6 +15,13 @@
       "when": 1792276596328,
       "tag": "0001_smart_psynapse",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792280519028,
+      "tag": "0002_smart_spiral",
+      "breakpoints": true
     }
   ]
 }

@@ -23,11 +23,11 @@ export function buildDarkDungeonVerificationEmailHtml(params: {
   type: "REGISTER" | "CHANGE_EMAIL";
 }): string {
   const { recipientName, code, type } = params;
-  const greetingName = recipientName || "Nobre Aventureiro(a)";
+  const greetingName = recipientName || "Nobre aventureiro(a)";
   const actionTitle =
     type === "REGISTER"
-      ? "Selo de Confirmação de Cadastro"
-      : "Selo de Alteração de E-mail";
+      ? "Selo de confirmação de cadastro"
+      : "Selo de alteração de e-mail";
   const actionDescription =
     type === "REGISTER"
       ? "Para ativar definitivamente sua conta no Salão da Guilda, liberar pedidos de amizade e participar de mesas compartilhadas, utilize o código rúnico abaixo:"
@@ -49,7 +49,7 @@ export function buildDarkDungeonVerificationEmailHtml(params: {
           <tr>
             <td style="padding:28px 28px 20px 28px;border-bottom:1px solid #1e293b;text-align:center;background:linear-gradient(180deg,#1a1f29 0%,#12161c 100%);">
               <div style="display:inline-block;padding:4px 12px;border-radius:999px;border:1px solid rgba(245,158,11,0.35);background-color:rgba(245,158,11,0.1);color:#fbbf24;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">
-                Salão da Guilda • D&amp;D v.3.5
+                Salão da guilda • D&amp;D v.3.5
               </div>
               <h1 style="margin:12px 0 4px 0;font-family:Georgia,'Times New Roman',serif;font-size:22px;font-weight:700;letter-spacing:1px;color:#f5f0e6;">
                 DRAGÕES &amp; MASMORRAS
@@ -73,7 +73,7 @@ export function buildDarkDungeonVerificationEmailHtml(params: {
               <!-- Caixa do Código Monoespaçado Âmbar/Ouro -->
               <div style="background-color:#0b0d10;border:1px solid rgba(245,158,11,0.45);border-radius:12px;padding:22px 16px;text-align:center;margin-bottom:22px;">
                 <span style="display:block;font-size:11px;text-transform:uppercase;letter-spacing:2px;color:#94a3b8;margin-bottom:8px;">
-                  Código de Verificação (6 Dígitos)
+                  Código de verificação (6 dígitos)
                 </span>
                 <div style="font-family:'JetBrains Mono','Courier New',monospace;font-size:34px;font-weight:800;letter-spacing:8px;color:#f59e0b;text-shadow:0 0 18px rgba(245,158,11,0.25);">
                   ${code}
@@ -83,7 +83,7 @@ export function buildDarkDungeonVerificationEmailHtml(params: {
               <!-- Validade de 15 Minutos -->
               <div style="background-color:#181d26;border-left:3px solid #f59e0b;padding:12px 14px;border-radius:6px;margin-bottom:8px;">
                 <p style="margin:0;font-size:12px;line-height:1.5;color:#cbd5e1;">
-                  ⏳ <strong>Atenção ao tempo de conjuração:</strong> Este código é válido estritamente por <strong>15 minutos</strong>.
+                  ⏳ <strong>Atenção ao tempo de conjuração:</strong> este código é válido estritamente por <strong>15 minutos</strong>.
                 </p>
               </div>
             </td>
@@ -96,7 +96,7 @@ export function buildDarkDungeonVerificationEmailHtml(params: {
                 Se você não solicitou este código no aplicativo <strong>Dragões &amp; Masmorras</strong>, ignore este e-mail com segurança. Nenhuma alteração será feita sem a confirmação do código.
               </p>
               <p style="margin:0;font-size:11px;color:#475569;">
-                © ${new Date().getFullYear()} Dragões &amp; Masmorras • Sistema de Referência D&amp;D 3.5
+                © ${new Date().getFullYear()} Dragões &amp; Masmorras • Sistema de referência D&amp;D 3.5
               </p>
             </td>
           </tr>
@@ -179,8 +179,8 @@ export async function issueAndSendVerificationCode(params: {
 
   const subject =
     type === "REGISTER"
-      ? `[${code}] Código de Verificação — Dragões & Masmorras`
-      : `[${code}] Confirmação de Novo E-mail — Dragões & Masmorras`;
+      ? `[${code}] Código de verificação — Dragões & Masmorras`
+      : `[${code}] Confirmação de novo e-mail — Dragões & Masmorras`;
 
   const html = buildDarkDungeonVerificationEmailHtml({
     recipientName,

@@ -21,6 +21,7 @@ import {
   X,
 } from "lucide-react";
 import { AppShell } from "@/components/navigation/app-shell";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import {
   GuildAvatar,
   GUILD_AVATAR_PRESETS,
@@ -37,14 +38,14 @@ const TIMEZONES = [
   { value: "America/Rio_Branco", label: "Acre / Rio Branco (ACT, UTC-5)" },
   { value: "Europe/Lisbon", label: "Lisboa / Portugal (WET/WEST)" },
   { value: "America/New_York", label: "Nova York (EST/EDT)" },
-  { value: "UTC", label: "Tempo Universal Coordenado (UTC)" },
+  { value: "UTC", label: "Tempo universal coordenado (UTC)" },
 ];
 
 const PRESENCE_OPTIONS = [
-  { value: "online", label: "🟢 Online (Disponível na Taverna)" },
-  { value: "in_game", label: "⚔️ Em Sessão de Mesa D&D 3.5" },
-  { value: "away", label: "🌙 Ausente (Acampando)" },
-  { value: "offline", label: "⚫ Invisível / Offline" },
+  { value: "online", label: "🟢 Online (disponível na taverna)" },
+  { value: "in_game", label: "⚔️ Em sessão de mesa D&D 3.5" },
+  { value: "away", label: "🌙 Ausente (acampando)" },
+  { value: "offline", label: "⚫ Invisível / offline" },
 ] as const;
 
 export default function SettingsPage() {
@@ -58,7 +59,7 @@ export default function SettingsPage() {
   const [hasPassword, setHasPassword] = useState(false);
   const [oauthImage, setOauthImage] = useState<string | null>(null);
 
-  // 1. Perfil & Identidade
+  // 1. Perfil e identidade
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [initialUsername, setInitialUsername] = useState("");
@@ -80,7 +81,7 @@ export default function SettingsPage() {
     text: string;
   } | null>(null);
 
-  // 2. Segurança — Senha
+  // 2. Segurança — senha
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -90,7 +91,7 @@ export default function SettingsPage() {
     text: string;
   } | null>(null);
 
-  // 3. Segurança — Fluxo Seguro de Troca de E-mail (Código de 6 dígitos)
+  // 3. Segurança — fluxo seguro de troca de e-mail (código de 6 dígitos)
   const [newEmail, setNewEmail] = useState("");
   const [pendingEmail, setPendingEmail] = useState<string | null>(null);
   const [emailCode, setEmailCode] = useState("");
@@ -103,7 +104,7 @@ export default function SettingsPage() {
     text: string;
   } | null>(null);
 
-  // 4. Zona de Perigo — Exclusão de Conta
+  // 4. Zona de perigo — exclusão de conta
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -138,7 +139,6 @@ export default function SettingsPage() {
     fetchAccount();
   }, []);
 
-  // Cooldown regressivo de 60s para reenvio do código de troca de e-mail
   useEffect(() => {
     if (emailCooldown <= 0) return;
     const timer = setInterval(() => {
@@ -147,7 +147,6 @@ export default function SettingsPage() {
     return () => clearInterval(timer);
   }, [emailCooldown]);
 
-  // Validação assíncrona do @username ao editar
   useEffect(() => {
     if (!authenticated || !username) return;
     if (username.toLowerCase() === initialUsername.toLowerCase()) {
@@ -213,7 +212,7 @@ export default function SettingsPage() {
         setProfileMessage({
           type: "success",
           text:
-            data.message || "Identidade da Guilda atualizada com sucesso!",
+            data.message || "Identidade da guilda atualizada com sucesso!",
         });
       }
     } catch {
@@ -386,7 +385,6 @@ export default function SettingsPage() {
         return;
       }
 
-      // Limpar cookies locais e encerrar sessão Auth.js
       document.cookie =
         "sanctum_mesa_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
       await signOut({ redirect: false });
@@ -399,6 +397,7 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
+      <Breadcrumbs items={[{ label: "Minha conta" }]} />
       <div className="space-y-6">
         {/* Cabeçalho da Página */}
         <div className="dungeon-panel p-5 sm:p-6">
@@ -412,15 +411,15 @@ export default function SettingsPage() {
               />
               <div>
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-torch/40 bg-torch/10 px-2.5 py-0.5 text-[11px] font-semibold text-torch-glow">
-                  Registro Oficial da Guilda
+                  Registro oficial da guilda
                 </span>
                 <h1 className="mt-1 font-display text-xl sm:text-2xl font-bold text-dungeon-parchment">
-                  Minha Conta & Identidade
+                  Minha conta e identidade
                 </h1>
                 <p className="text-xs text-slate-400">
                   {authenticated
                     ? `@${initialUsername} • ${currentEmail}`
-                    : "Conecte-se com Google ou E-mail para sincronizar sua conta na nuvem."}
+                    : "Conecte-se com Google ou e-mail para sincronizar sua conta na nuvem."}
                 </p>
               </div>
             </div>
@@ -434,9 +433,9 @@ export default function SettingsPage() {
         ) : !authenticated ? (
           <div className="dungeon-panel p-6 text-center space-y-3">
             <p className="text-sm text-slate-300">
-              Você está navegando no <strong>Modo Rápido de Mesa</strong>. Para
+              Você está navegando no <strong>modo rápido de mesa</strong>. Para
               escolher seu <span className="text-torch-glow">@nickname</span>,
-              avatar da Guilda e adicionar amigos, entre com sua conta Google ou
+              avatar da guilda e adicionar amigos, entre com sua conta Google ou
               e-mail!
             </p>
             <button
@@ -444,7 +443,7 @@ export default function SettingsPage() {
               onClick={() => router.push("/")}
               className="runic-button mx-auto"
             >
-              <span>Entrar ou Criar Conta na Guilda</span>
+              <span>Entrar ou criar conta na guilda</span>
             </button>
           </div>
         ) : (
@@ -457,7 +456,7 @@ export default function SettingsPage() {
               <div className="border-b border-stone-800 pb-3">
                 <h2 className="font-display text-base sm:text-lg font-bold text-dungeon-parchment flex items-center gap-2">
                   <User className="h-4 w-4 text-torch-glow" />
-                  <span>1. Perfil & Identidade na Guilda</span>
+                  <span>1. Perfil e identidade na guilda</span>
                 </h2>
                 <p className="mt-0.5 text-xs text-slate-400">
                   Defina como mestres e jogadores encontram você nas mesas e na
@@ -485,7 +484,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Nome Completo ou Título de Aventureiro
+                    Nome completo ou título de aventureiro
                   </label>
                   <div className="relative">
                     <User className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
@@ -494,14 +493,14 @@ export default function SettingsPage() {
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       className="carved-input pl-9"
-                      placeholder="Ex: Rafael, Mestre da Cripta"
+                      placeholder="Ex.: Rafael, mestre da cripta"
                     />
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Nickname Único (@username)
+                    Nickname único (@username)
                   </label>
                   <div className="relative">
                     <AtSign className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-torch-glow" />
@@ -539,7 +538,7 @@ export default function SettingsPage() {
               {/* Seletor de Avatar da Guilda */}
               <div>
                 <label className="block text-xs font-medium text-slate-300 mb-2">
-                  Seletor de Avatar da Guilda
+                  Seletor de avatar da guilda
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                   {oauthImage && (
@@ -560,10 +559,10 @@ export default function SettingsPage() {
                       />
                       <div className="min-w-0">
                         <p className="truncate text-xs font-semibold text-dungeon-parchment">
-                          Foto Google
+                          Foto do Google
                         </p>
                         <p className="truncate text-[10px] text-slate-400">
-                          Conta OAuth
+                          Conta Google
                         </p>
                       </div>
                     </button>
@@ -598,7 +597,7 @@ export default function SettingsPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Status na Taverna (Multiplayer)
+                    Status na taverna
                   </label>
                   <select
                     value={statusPresence}
@@ -624,7 +623,7 @@ export default function SettingsPage() {
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
                     <Globe className="inline h-3.5 w-3.5 mr-1 text-torch-glow" />
-                    Fuso Horário (Agendamento de Mesas)
+                    Fuso horário (agendamento de mesas)
                   </label>
                   <select
                     value={timezone}
@@ -651,8 +650,8 @@ export default function SettingsPage() {
                   <Save className="h-4 w-4" />
                   <span>
                     {profileSaving
-                      ? "Salvando Alterações..."
-                      : "Salvar Identidade da Guilda"}
+                      ? "Salvando alterações..."
+                      : "Salvar identidade da guilda"}
                   </span>
                 </button>
               </div>
@@ -665,7 +664,7 @@ export default function SettingsPage() {
                 <div className="border-b border-stone-800 pb-3">
                   <h2 className="font-display text-base font-bold text-dungeon-parchment flex items-center gap-2">
                     <Mail className="h-4 w-4 text-torch-glow" />
-                    <span>2. Alteração Segura de E-mail</span>
+                    <span>2. Alteração segura de e-mail</span>
                   </h2>
                   <p className="mt-0.5 text-xs text-slate-400">
                     E-mail atual:{" "}
@@ -704,7 +703,7 @@ export default function SettingsPage() {
                 <form onSubmit={handleRequestEmailChange} className="space-y-3">
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1">
-                      Novo Endereço de E-mail
+                      Novo endereço de e-mail
                     </label>
                     <input
                       type="email"
@@ -723,8 +722,8 @@ export default function SettingsPage() {
                     <Send className="h-3.5 w-3.5" />
                     <span>
                       {emailSending
-                        ? "Enviando Código..."
-                        : "Enviar Código de 6 Dígitos para o Novo E-mail"}
+                        ? "Enviando código..."
+                        : "Enviar código de 6 dígitos para o novo e-mail"}
                     </span>
                   </button>
                 </form>
@@ -745,7 +744,7 @@ export default function SettingsPage() {
                     {emailDevCode && (
                       <div className="rounded border border-amber-500/40 bg-amber-950/30 p-2 text-center text-xs text-amber-200">
                         <span className="block text-[10px] uppercase text-amber-400">
-                          Código Sandbox / Dev:
+                          Código de teste:
                         </span>
                         <span className="font-mono font-bold tracking-widest text-torch-glow">
                           {emailDevCode}
@@ -769,7 +768,7 @@ export default function SettingsPage() {
                       <span>
                         {emailVerifying
                           ? "Confirmando..."
-                          : "Confirmar Código & Atualizar E-mail"}
+                          : "Confirmar código e atualizar e-mail"}
                       </span>
                     </button>
 
@@ -809,8 +808,8 @@ export default function SettingsPage() {
                     <Shield className="h-4 w-4 text-torch-glow" />
                     <span>
                       {hasPassword
-                        ? "Alterar Senha de Acesso"
-                        : "Definir Senha de Acesso"}
+                        ? "Alterar senha de acesso"
+                        : "Definir senha de acesso"}
                     </span>
                   </h2>
                   <p className="mt-0.5 text-xs text-slate-400">
@@ -840,7 +839,7 @@ export default function SettingsPage() {
                 {hasPassword && (
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1">
-                      Senha Atual
+                      Senha atual
                     </label>
                     <div className="relative">
                       <KeyRound className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
@@ -857,7 +856,7 @@ export default function SettingsPage() {
 
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Nova Senha (mínimo 8 caracteres, letras e números)
+                    Nova senha (mínimo de 8 caracteres, letras e números)
                   </label>
                   <div className="relative">
                     <KeyRound className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
@@ -873,7 +872,7 @@ export default function SettingsPage() {
 
                 <div>
                   <label className="block text-xs font-medium text-slate-300 mb-1">
-                    Confirmar Nova Senha
+                    Confirmar nova senha
                   </label>
                   <div className="relative">
                     <KeyRound className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
@@ -895,8 +894,8 @@ export default function SettingsPage() {
                   <KeyRound className="h-3.5 w-3.5 text-torch-glow" />
                   <span>
                     {passwordSaving
-                      ? "Atualizando Senha..."
-                      : "Salvar Nova Senha"}
+                      ? "Atualizando senha..."
+                      : "Salvar nova senha"}
                   </span>
                 </button>
               </form>
@@ -908,16 +907,13 @@ export default function SettingsPage() {
                 <div className="space-y-1">
                   <h2 className="font-display text-base font-bold text-red-200 flex items-center gap-2">
                     <AlertTriangle className="h-4 w-4 text-crimson-soft" />
-                    <span>3. Zona de Perigo — Exclusão Permanente</span>
+                    <span>3. Zona de perigo — exclusão permanente</span>
                   </h2>
                   <p className="text-xs text-red-200/80 max-w-2xl">
                     Ao excluir sua conta, todos os seus personagens D&D 3.5,
-                    encontros de combate, vínculos de amizade na Guilda e
-                    credenciais de acesso serão apagados permanentemente (
-                    <code className="font-mono text-[11px]">
-                      ON DELETE CASCADE
-                    </code>
-                    ). Esta ação não pode ser desfeita.
+                    encontros de combate, vínculos de amizade na guilda e
+                    credenciais de acesso serão apagados permanentemente. Esta
+                    ação não pode ser desfeita.
                   </p>
                 </div>
 
@@ -931,7 +927,7 @@ export default function SettingsPage() {
                   className="inline-flex min-h-[42px] items-center justify-center gap-2 rounded-lg border border-crimson bg-crimson/20 px-4 py-2 text-xs font-bold text-red-200 hover:bg-crimson hover:text-white transition-colors shrink-0"
                 >
                   <Trash2 className="h-4 w-4" />
-                  <span>Excluir Minha Conta</span>
+                  <span>Excluir minha conta</span>
                 </button>
               </div>
             </div>
@@ -947,7 +943,7 @@ export default function SettingsPage() {
               <div className="flex items-center gap-2 text-red-300">
                 <AlertTriangle className="h-5 w-5 text-crimson-soft shrink-0" />
                 <h3 className="font-display text-base font-bold">
-                  Confirmar Exclusão Permanente
+                  Confirmar exclusão permanente
                 </h3>
               </div>
               <button
@@ -961,14 +957,14 @@ export default function SettingsPage() {
 
             <div className="rounded-lg border border-crimson/50 bg-crimson-blood/30 p-3 text-xs text-red-200 space-y-1.5">
               <p className="font-semibold">
-                Atenção: Esta ação é irreversível!
+                Atenção: esta ação é irreversível!
               </p>
               <ul className="list-disc pl-4 space-y-1 text-[11px] text-red-200/90">
                 <li>
                   Todas as suas fichas de personagem e grimórios serão apagados.
                 </li>
                 <li>
-                  Sua lista de amigos e convites na Guilda serão desfeitos.
+                  Sua lista de amigos e convites na guilda serão desfeitos.
                 </li>
                 <li>
                   Seu nickname <strong>@{initialUsername}</strong> será liberado.
@@ -1019,8 +1015,8 @@ export default function SettingsPage() {
                   <Trash2 className="h-3.5 w-3.5" />
                   <span>
                     {deleting
-                      ? "Apagando Registros..."
-                      : "Apagar Conta Permanentemente"}
+                      ? "Apagando registros..."
+                      : "Apagar conta permanentemente"}
                   </span>
                 </button>
               </div>

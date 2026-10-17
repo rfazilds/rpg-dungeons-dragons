@@ -24,32 +24,32 @@ export interface GuildAvatarPresetInfo {
 export const GUILD_AVATAR_PRESETS: GuildAvatarPresetInfo[] = [
   {
     id: "preset_warrior",
-    label: "Guerreiro da Vanguarda",
-    subtitle: "Aço, Força & Honra",
+    label: "Guerreiro da vanguarda",
+    subtitle: "Aço, força e honra",
     gradient: "from-red-950 via-stone-900 to-amber-950",
     border: "border-red-500/50",
     iconColor: "text-red-400",
   },
   {
     id: "preset_mage",
-    label: "Arcanista da Torre",
-    subtitle: "Grimório & Magia Arcana",
+    label: "Arcanista da torre",
+    subtitle: "Grimório e magia arcana",
     gradient: "from-indigo-950 via-slate-900 to-purple-950",
     border: "border-indigo-400/50",
     iconColor: "text-indigo-300",
   },
   {
     id: "preset_rogue",
-    label: "Ladino das Sombras",
-    subtitle: "Furtividade & Precisão",
+    label: "Ladino das sombras",
+    subtitle: "Furtividade e precisão",
     gradient: "from-emerald-950 via-stone-900 to-slate-950",
     border: "border-emerald-500/50",
     iconColor: "text-emerald-400",
   },
   {
     id: "preset_cleric",
-    label: "Clérigo do Santuário",
-    subtitle: "Fé Divina & Proteção",
+    label: "Clérigo do santuário",
+    subtitle: "Fé divina e proteção",
     gradient: "from-amber-950 via-stone-900 to-yellow-950",
     border: "border-amber-400/60",
     iconColor: "text-amber-300",
@@ -57,7 +57,7 @@ export const GUILD_AVATAR_PRESETS: GuildAvatarPresetInfo[] = [
   {
     id: "preset_d20",
     label: "Mestre do d20",
-    subtitle: "Símbolo Clássico da Mesa",
+    subtitle: "Símbolo clássico da mesa",
     gradient: "from-stone-900 via-dungeon-abyss to-amber-950",
     border: "border-torch/60",
     iconColor: "text-torch-glow",
@@ -93,7 +93,6 @@ export function GuildAvatar({
     lg: "h-8 w-8",
   }[size];
 
-  // Se for OAuth e houver URL válida de imagem
   const resolvedImageUrl =
     avatarType === "oauth" ? oauthImage || avatarUrl : null;
 
@@ -105,7 +104,7 @@ export function GuildAvatar({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={resolvedImageUrl}
-          alt={name || "Avatar da Guilda"}
+          alt={name || "Avatar da guilda"}
           className="h-full w-full object-cover"
           referrerPolicy="no-referrer"
         />
@@ -115,7 +114,7 @@ export function GuildAvatar({
 
   const preset =
     GUILD_AVATAR_PRESETS.find((p) => p.id === avatarType) ||
-    GUILD_AVATAR_PRESETS[4]; // fallback: preset_d20
+    GUILD_AVATAR_PRESETS[4];
 
   return (
     <div

@@ -16,6 +16,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { AppShell } from "@/components/navigation/app-shell";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { GuildAvatar } from "@/components/account/guild-avatar";
 
 interface CommunityUser {
@@ -59,7 +60,7 @@ function renderPresenceBadge(presence?: string | null) {
       return (
         <span className="inline-flex items-center gap-1.5 rounded-full border border-torch/50 bg-torch/15 px-2.5 py-0.5 text-[11px] font-medium text-torch-glow">
           <span className="h-1.5 w-1.5 rounded-full bg-torch animate-pulse" />
-          Em Mesa D&D
+          Em mesa D&D
         </span>
       );
     case "away":
@@ -94,7 +95,6 @@ export default function CommunityPage() {
     []
   );
 
-  // Busca por @nickname
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchCandidate[]>([]);
@@ -124,7 +124,6 @@ export default function CommunityPage() {
     loadFriendsList();
   }, [loadFriendsList]);
 
-  // Busca reativa por @nickname
   useEffect(() => {
     const clean = searchQuery.trim().replace(/^@+/, "");
     if (clean.length < 2) {
@@ -173,7 +172,6 @@ export default function CommunityPage() {
           type: "success",
           text: data.message || "Pedido de amizade enviado!",
         });
-        // Atualiza estado do card buscado e recarrega lista
         setSearchResults((prev) =>
           prev.map((item) =>
             item.id === targetUserId
@@ -220,7 +218,7 @@ export default function CommunityPage() {
       } else {
         setFeedback({
           type: "success",
-          text: data.message || "Lista da Guilda atualizada!",
+          text: data.message || "Lista da guilda atualizada!",
         });
         await loadFriendsList();
       }
@@ -236,16 +234,17 @@ export default function CommunityPage() {
 
   return (
     <AppShell>
+      <Breadcrumbs items={[{ label: "Comunidade e amigos" }]} />
       <div className="space-y-6">
         {/* Cabeçalho do Módulo de Comunidade */}
         <div className="dungeon-panel p-5 sm:p-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <span className="inline-flex items-center gap-1.5 rounded-full border border-torch/40 bg-torch/10 px-2.5 py-0.5 text-[11px] font-semibold text-torch-glow">
-                <UsersRound className="h-3.5 w-3.5" /> Rede Social & Multiplayer
+                <UsersRound className="h-3.5 w-3.5" /> Rede social e mesas compartilhadas
               </span>
               <h1 className="mt-1.5 font-display text-xl sm:text-2xl font-bold text-dungeon-parchment">
-                Comunidade & Guilda de Amigos
+                Comunidade e guilda de amigos
               </h1>
               <p className="mt-0.5 text-xs sm:text-sm text-slate-400">
                 Encontre aventureiros pelo{" "}
@@ -258,7 +257,7 @@ export default function CommunityPage() {
             <div className="flex items-center gap-3 self-start sm:self-auto rounded-lg border border-stone-800 bg-dungeon-abyss/80 px-3.5 py-2 text-xs">
               <div>
                 <span className="block text-[10px] uppercase tracking-wider text-slate-400">
-                  Aliados na Guilda
+                  Aliados na guilda
                 </span>
                 <span className="font-display text-base font-bold text-torch-glow">
                   {friends.length}
@@ -267,7 +266,7 @@ export default function CommunityPage() {
               <div className="h-7 w-px bg-stone-800" />
               <div>
                 <span className="block text-[10px] uppercase tracking-wider text-slate-400">
-                  Convites Pendentes
+                  Convites pendentes
                 </span>
                 <span className="font-display text-base font-bold text-dungeon-parchment">
                   {incomingRequests.length}
@@ -296,21 +295,21 @@ export default function CommunityPage() {
 
         {loading ? (
           <div className="dungeon-panel p-8 text-center text-xs text-slate-400">
-            Consultando registros do Salão da Guilda...
+            Consultando registros do salão da guilda...
           </div>
         ) : !authenticated ? (
           <div className="dungeon-panel p-6 text-center space-y-3">
             <p className="text-sm text-slate-300">
               Para buscar jogadores por{" "}
               <span className="font-mono text-torch-glow">@nickname</span> e
-              formar sua Guilda de Amigos, entre com sua conta Google ou e-mail!
+              formar sua guilda de amigos, entre com sua conta Google ou e-mail!
             </p>
             <button
               type="button"
               onClick={() => router.push("/")}
               className="runic-button mx-auto"
             >
-              <span>Entrar ou Criar Conta</span>
+              <span>Entrar ou criar conta</span>
             </button>
           </div>
         ) : (
@@ -320,7 +319,7 @@ export default function CommunityPage() {
                 <ShieldAlert className="h-4 w-4 text-torch-glow shrink-0 mt-0.5" />
                 <div>
                   <p className="font-semibold text-dungeon-parchment">
-                    Verificação de E-mail Pendente
+                    Verificação de e-mail pendente
                   </p>
                   <p className="mt-0.5 text-amber-200/80">
                     Confirme seu e-mail através do botão no topo da tela para
@@ -335,11 +334,11 @@ export default function CommunityPage() {
               <div>
                 <h2 className="font-display text-base font-bold text-dungeon-parchment flex items-center gap-2">
                   <Search className="h-4 w-4 text-torch-glow" />
-                  <span>Buscar Aventureiros na Guilda</span>
+                  <span>Buscar aventureiros na guilda</span>
                 </h2>
                 <p className="mt-0.5 text-xs text-slate-400">
                   Pesquise pelo <code className="text-torch-glow">@nickname</code>{" "}
-                  (ex: <code className="text-slate-300">@mago_supremo</code>,{" "}
+                  (ex.: <code className="text-slate-300">@mago_supremo</code>,{" "}
                   <code className="text-slate-300">@thorin</code>) ou pelo nome.
                 </p>
               </div>
@@ -357,7 +356,7 @@ export default function CommunityPage() {
 
               {searching && (
                 <p className="text-xs text-slate-400">
-                  Vasculhando a Taverna por &ldquo;{searchQuery}&rdquo;...
+                  Vasculhando a taverna por &ldquo;{searchQuery}&rdquo;...
                 </p>
               )}
 
@@ -408,14 +407,14 @@ export default function CommunityPage() {
                             className="inline-flex min-h-[38px] items-center gap-1.5 rounded-lg border border-torch/50 bg-torch/15 px-3 py-1.5 text-xs font-semibold text-torch-glow hover:bg-torch/25 transition-colors disabled:opacity-50"
                           >
                             <UserPlus className="h-3.5 w-3.5" />
-                            <span>Adicionar Amigo</span>
+                            <span>Adicionar amigo</span>
                           </button>
                         )}
 
                         {candidate.relationState === "PENDING_SENT" && (
                           <span className="inline-flex items-center gap-1 rounded-lg border border-stone-700 bg-dungeon-stone px-2.5 py-1.5 text-[11px] text-slate-300">
                             <Clock className="h-3.5 w-3.5 text-amber-400" />
-                            <span>Convite Enviado</span>
+                            <span>Convite enviado</span>
                           </span>
                         )}
 
@@ -432,14 +431,14 @@ export default function CommunityPage() {
                               className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500"
                             >
                               <Check className="h-3.5 w-3.5" />
-                              <span>Aceitar Pedido</span>
+                              <span>Aceitar pedido</span>
                             </button>
                           )}
 
                         {candidate.relationState === "ACCEPTED" && (
                           <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-950/40 px-2.5 py-1.5 text-xs font-medium text-emerald-300">
                             <Check className="h-3.5 w-3.5" />
-                            <span>Na sua Guilda</span>
+                            <span>Na sua guilda</span>
                           </span>
                         )}
                       </div>
@@ -456,12 +455,12 @@ export default function CommunityPage() {
                   <h2 className="font-display text-base font-bold text-dungeon-parchment flex items-center gap-2">
                     <Clock className="h-4 w-4 text-torch-glow" />
                     <span>
-                      Pedidos Pendentes ({incomingRequests.length} recebidos)
+                      Pedidos pendentes ({incomingRequests.length} recebidos)
                     </span>
                   </h2>
                   <p className="mt-0.5 text-xs text-slate-400">
-                    Aceite convites de aliados para adicioná-los à sua Guilda de
-                    Amigos.
+                    Aceite convites de aliados para adicioná-los à sua guilda de
+                    amigos.
                   </p>
                 </div>
 
@@ -532,7 +531,7 @@ export default function CommunityPage() {
                 {outgoingRequests.length > 0 && (
                   <div className="pt-2 space-y-2">
                     <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                      Convites Enviados por Você ({outgoingRequests.length})
+                      Convites enviados por você ({outgoingRequests.length})
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                       {outgoingRequests.map((req) => (
@@ -584,7 +583,7 @@ export default function CommunityPage() {
               <div className="border-b border-stone-800 pb-3">
                 <h2 className="font-display text-base font-bold text-dungeon-parchment flex items-center gap-2">
                   <UsersRound className="h-4 w-4 text-torch-glow" />
-                  <span>Guilda de Amigos ({friends.length})</span>
+                  <span>Guilda de amigos ({friends.length})</span>
                 </h2>
                 <p className="mt-0.5 text-xs text-slate-400">
                   Seus companheiros de aventura confirmados e disponibilidade de
@@ -596,7 +595,7 @@ export default function CommunityPage() {
                 <div className="rounded-lg border border-dashed border-stone-800 bg-dungeon-abyss/50 p-8 text-center space-y-2">
                   <UsersRound className="mx-auto h-7 w-7 text-slate-500" />
                   <p className="text-sm font-medium text-dungeon-parchment">
-                    Sua Guilda de Amigos ainda está vazia
+                    Sua guilda de amigos ainda está vazia
                   </p>
                   <p className="text-xs text-slate-400 max-w-md mx-auto">
                     Use a barra de busca acima para procurar seus amigos pelo{" "}
@@ -647,7 +646,7 @@ export default function CommunityPage() {
                         onClick={() =>
                           handleFriendshipAction(entry.friendshipId, "REMOVE")
                         }
-                        title="Remover da Guilda"
+                        title="Remover da guilda"
                         className="rounded-lg border border-stone-800 bg-dungeon-stone p-2 text-slate-400 hover:border-crimson/50 hover:text-red-300 transition-colors"
                       >
                         <UserMinus className="h-4 w-4" />

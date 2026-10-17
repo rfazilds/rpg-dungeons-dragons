@@ -15,6 +15,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { AppShell } from "@/components/navigation/app-shell";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import {
   loadStoredCharacters,
   updateStoredCharacter,
@@ -185,6 +186,12 @@ export default function InteractiveCharacterSheetPage() {
 
   return (
     <AppShell>
+      <Breadcrumbs
+        items={[
+          { label: "Meus personagens", href: "/characters" },
+          { label: character.name },
+        ]}
+      />
       {/* Topo da Ficha: Identidade e Nível */}
       <div className="dungeon-panel p-4 sm:p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -193,7 +200,7 @@ export default function InteractiveCharacterSheetPage() {
               href="/characters"
               className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-torch-glow mb-1"
             >
-              <ArrowLeft className="h-3.5 w-3.5" /> Voltar para Meus Personagens
+              <ArrowLeft className="h-3.5 w-3.5" /> Voltar para meus personagens
             </Link>
             <div className="flex flex-wrap items-center gap-2">
               <h1 className="font-display text-xl sm:text-2xl font-bold text-dungeon-parchment">
@@ -263,10 +270,10 @@ export default function InteractiveCharacterSheetPage() {
         {/* Abas Mobile-First para Navegação Limpa */}
         <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-1.5 rounded-lg border border-stone-800 bg-dungeon-abyss p-1">
           {[
-            { id: "combat", label: "Combate & Atributos", icon: Swords },
+            { id: "combat", label: "Combate e atributos", icon: Swords },
             { id: "skills", label: "Perícias 3.5", icon: ScrollText },
-            { id: "spells", label: "Magias & Slots", icon: Sparkles },
-            { id: "gear", label: "Equipamento & Ouro", icon: Backpack },
+            { id: "spells", label: "Magias e espaços", icon: Sparkles },
+            { id: "gear", label: "Equipamento e ouro", icon: Backpack },
           ].map((tab) => {
             const Icon = tab.icon;
             const active = activeTab === tab.id;
@@ -302,8 +309,8 @@ export default function InteractiveCharacterSheetPage() {
             <div className="dungeon-panel p-4">
               <div className="flex items-center justify-between">
                 <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-crimson-soft">
-                  <Heart className="h-4 w-4" /> Pontos de Vida (Ferimentos /
-                  Atuais)
+                  <Heart className="h-4 w-4" /> Pontos de vida (ferimentos /
+                  atuais)
                 </span>
                 <span className="text-xs font-mono text-slate-400">
                   Morte em -10 PV
@@ -365,7 +372,7 @@ export default function InteractiveCharacterSheetPage() {
                     onClick={() =>
                       saveChar({ ...character, currentHp: character.maxHp })
                     }
-                    title="Descanso Completo"
+                    title="Descanso completo"
                     className="min-h-[40px] px-2.5 rounded-lg border border-stone-700 bg-dungeon-abyss text-xs text-slate-300"
                   >
                     <RotateCcw className="h-3.5 w-3.5" />
@@ -378,7 +385,7 @@ export default function InteractiveCharacterSheetPage() {
             <div className="dungeon-panel p-4 grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-center">
               <div className="rounded-lg border border-stone-800 bg-dungeon-abyss p-2.5">
                 <span className="block text-[10px] font-semibold uppercase text-slate-400">
-                  CA Total
+                  CA total
                 </span>
                 <span className="font-display text-2xl font-extrabold text-torch-glow">
                   {character.armorClass}
@@ -408,7 +415,7 @@ export default function InteractiveCharacterSheetPage() {
               <button
                 type="button"
                 onClick={() =>
-                  triggerD20Check("Ataque Corpo a Corpo", bab + strMod)
+                  triggerD20Check("Ataque corpo a corpo", bab + strMod)
                 }
                 className="rounded-lg border border-stone-800 bg-dungeon-abyss p-2.5 hover:border-torch/50 active:scale-95"
               >
@@ -426,7 +433,7 @@ export default function InteractiveCharacterSheetPage() {
               <button
                 type="button"
                 onClick={() =>
-                  triggerD20Check("Manobra de Agarrar", grappleTotal)
+                  triggerD20Check("Manobra de agarrar", grappleTotal)
                 }
                 className="rounded-lg border border-stone-800 bg-dungeon-abyss p-2.5 hover:border-torch/50 active:scale-95"
               >
@@ -446,7 +453,7 @@ export default function InteractiveCharacterSheetPage() {
           {/* Os 6 Atributos (Toque para rolar Teste de Habilidade d20) */}
           <div className="dungeon-panel p-4">
             <h2 className="font-display text-sm font-bold uppercase tracking-wider text-slate-300 mb-3">
-              Habilidades (Toque em qualquer atributo para rolar 1d20 + Mod)
+              Habilidades (toque em qualquer atributo para rolar 1d20 + mod)
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
               {[
@@ -483,7 +490,7 @@ export default function InteractiveCharacterSheetPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="dungeon-panel p-4">
               <h2 className="font-display text-sm font-bold uppercase tracking-wider text-slate-300 mb-3">
-                Testes de Resistência (D&D 3.5)
+                Testes de resistência (D&D 3.5)
               </h2>
               <div className="grid grid-cols-3 gap-2.5">
                 {[
@@ -537,7 +544,7 @@ export default function InteractiveCharacterSheetPage() {
             {/* Armas e Ataques */}
             <div className="dungeon-panel p-4">
               <h2 className="font-display text-sm font-bold uppercase tracking-wider text-slate-300 mb-3">
-                Ataques & Sucesso Decisivo
+                Ataques e sucesso decisivo
               </h2>
               <div className="space-y-2">
                 {character.attacks.map((atk) => {
@@ -576,7 +583,7 @@ export default function InteractiveCharacterSheetPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="dungeon-panel p-4">
               <h3 className="font-display text-sm font-bold uppercase tracking-wider text-torch-glow mb-2">
-                Talentos (Feats D&D 3.5)
+                Talentos (D&D 3.5)
               </h3>
               <ul className="space-y-1.5 text-xs text-slate-300">
                 {character.feats.map((feat) => (
@@ -592,7 +599,7 @@ export default function InteractiveCharacterSheetPage() {
 
             <div className="dungeon-panel p-4">
               <h3 className="font-display text-sm font-bold uppercase tracking-wider text-torch-glow mb-2">
-                Traços Raciais & Habilidades de Classe
+                Traços raciais e habilidades de classe
               </h3>
               <ul className="space-y-1.5 text-xs text-slate-300 max-h-48 overflow-y-auto">
                 {character.specialAbilities.map((spec) => (
@@ -617,18 +624,18 @@ export default function InteractiveCharacterSheetPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-stone-800">
             <div>
               <h2 className="font-display text-base font-bold text-dungeon-parchment">
-                Planilha de Perícias D&D 3.5
+                Planilha de perícias D&D 3.5
               </h2>
               <p className="text-xs text-slate-400">
-                Graduação Máxima no Nível {character.level}:{" "}
+                Graduação máxima no nível {character.level}:{" "}
                 <strong className="text-torch-glow">
                   {calculateMaxSkillRanks(character.level, true)}
                 </strong>{" "}
-                (Perícia de Classe) |{" "}
+                (perícia de classe) |{" "}
                 <strong>
                   {calculateMaxSkillRanks(character.level, false)}
                 </strong>{" "}
-                (Outra Classe). Toque no nome para rolar 1d20!
+                (outra classe). Toque no nome para rolar 1d20!
               </p>
             </div>
           </div>
@@ -719,12 +726,12 @@ export default function InteractiveCharacterSheetPage() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-3 border-b border-stone-800">
             <div>
               <h2 className="font-display text-base font-bold text-dungeon-parchment">
-                Grimório & Espaços de Magia por Círculo (D&D 3.5)
+                Grimório e espaços de magia por círculo (D&D 3.5)
               </h2>
               <p className="text-xs text-slate-400">
-                CD do Teste de Resistência contra suas Magias:{" "}
+                CD do teste de resistência contra suas magias:{" "}
                 <strong className="text-arcane-bright">
-                  10 + Nível da Magia + Mod. de Habilidade Chave
+                  10 + nível da magia + mod. de habilidade-chave
                 </strong>
               </p>
             </div>
@@ -745,8 +752,8 @@ export default function InteractiveCharacterSheetPage() {
                     <div className="flex items-center justify-between">
                       <span className="font-display text-sm font-bold text-arcane-bright">
                         {circleKey === "0"
-                          ? "0º Círculo (Truques / Orisons)"
-                          : `${circleKey}º Círculo`}
+                          ? "0º círculo (truques / preces)"
+                          : `${circleKey}º círculo`}
                       </span>
                       <span className="rounded border border-arcane/40 bg-arcane-deep/50 px-2 py-0.5 font-mono text-xs text-arcane-bright">
                         CD {slot.saveDc}
@@ -755,7 +762,7 @@ export default function InteractiveCharacterSheetPage() {
 
                     <div className="mt-3 flex items-center justify-between">
                       <span className="text-xs text-slate-400">
-                        Slots Disponíveis:
+                        Espaços disponíveis:
                       </span>
                       <span className="font-mono text-base font-bold text-dungeon-parchment">
                         {remaining} / {slot.max}
@@ -783,7 +790,7 @@ export default function InteractiveCharacterSheetPage() {
                       disabled={remaining === 0}
                       className="min-h-[38px] flex-1 rounded-lg border border-arcane/40 bg-arcane/15 text-xs font-semibold text-arcane-bright disabled:opacity-40"
                     >
-                      Conjurar (-1 Slot)
+                      Conjurar (-1 espaço)
                     </button>
                     <button
                       type="button"
@@ -808,15 +815,15 @@ export default function InteractiveCharacterSheetPage() {
         <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="dungeon-panel p-4 sm:p-5 space-y-4">
             <h2 className="font-display text-base font-bold text-dungeon-parchment">
-              Moedas & Riqueza (Padrão D&D 3.5)
+              Moedas e riqueza (padrão D&D 3.5)
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {(
                 [
-                  { key: "pc", label: "PC (Cobre)" },
-                  { key: "pp", label: "PP (Prata)" },
-                  { key: "po", label: "PO (Ouro)" },
-                  { key: "pl", label: "PL (Platina)" },
+                  { key: "pc", label: "PC (cobre)" },
+                  { key: "pp", label: "PP (prata)" },
+                  { key: "po", label: "PO (ouro)" },
+                  { key: "pl", label: "PL (platina)" },
                 ] as const
               ).map((coin) => (
                 <div
@@ -851,7 +858,7 @@ export default function InteractiveCharacterSheetPage() {
 
             <div>
               <h3 className="font-display text-sm font-bold text-torch-glow mb-2">
-                Itens e Equipamentos na Mochila
+                Itens e equipamentos na mochila
               </h3>
               <ul className="space-y-1.5 text-xs">
                 {character.equipment.armor && (
@@ -897,7 +904,7 @@ export default function InteractiveCharacterSheetPage() {
           <div className="dungeon-panel p-4 sm:p-5 space-y-4">
             <div>
               <h3 className="font-display text-sm font-bold text-torch-glow mb-2">
-                Idiomas Conhecidos
+                Idiomas conhecidos
               </h3>
               <div className="flex flex-wrap gap-1.5">
                 {character.languages.map((lang) => (
@@ -913,7 +920,7 @@ export default function InteractiveCharacterSheetPage() {
 
             <div>
               <h3 className="font-display text-sm font-bold text-torch-glow mb-2">
-                Anotações de Campanha
+                Anotações de campanha
               </h3>
               <textarea
                 rows={5}

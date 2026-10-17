@@ -2,13 +2,13 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { Shield, ArrowLeft, Lock, Mail } from "lucide-react";
+import { ArrowLeft, Lock, Mail } from "lucide-react";
 import { AppFooter } from "@/components/navigation/app-footer";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidade",
+  title: "Política de privacidade",
   description:
-    "Política de Privacidade e proteção de dados da plataforma Dragões & Masmorras (D&D 3.5).",
+    "Política de privacidade e proteção de dados da plataforma Dragões & Masmorras (D&D 3.5).",
 };
 
 export default function PrivacyPolicyPage() {
@@ -34,7 +34,7 @@ export default function PrivacyPolicyPage() {
             className="inline-flex items-center gap-1.5 rounded-lg border border-stone-800 bg-dungeon-abyss px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-torch/50 hover:text-torch-glow transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Voltar ao App</span>
+            <span>Voltar ao app</span>
           </Link>
         </div>
       </header>
@@ -43,10 +43,10 @@ export default function PrivacyPolicyPage() {
         <div className="dungeon-panel p-5 sm:p-8 space-y-6">
           <div className="border-b border-stone-800 pb-4">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-torch/40 bg-torch/15 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-torch-glow">
-              <Lock className="h-3 w-3" /> Privacidade & Proteção de Dados (LGPD)
+              <Lock className="h-3 w-3" /> Privacidade e proteção de dados (LGPD)
             </div>
             <h1 className="mt-2 font-display text-2xl sm:text-3xl font-bold text-dungeon-parchment">
-              Política de Privacidade
+              Política de privacidade
             </h1>
             <p className="mt-1 text-xs text-slate-400">
               Última atualização: 17 de outubro de 2026
@@ -55,11 +55,11 @@ export default function PrivacyPolicyPage() {
 
           <section className="space-y-3 text-sm text-slate-300 leading-relaxed">
             <h2 className="font-display text-base font-bold text-torch-glow">
-              1. Visão Geral
+              1. Visão geral
             </h2>
             <p>
               A plataforma <strong>Dragões & Masmorras</strong> é uma ferramenta
-              web de auxílio para mesas de RPG (Dungeons & Dragons Edição 3.5),
+              web de auxílio para mesas de RPG (Dungeons & Dragons edição 3.5),
               projetada para criação e gerenciamento de fichas de personagens,
               cálculo de encontros e organização de sessões de jogo. Respeitamos
               integralmente a sua privacidade em conformidade com a Lei Geral de
@@ -69,7 +69,7 @@ export default function PrivacyPolicyPage() {
 
           <section className="space-y-3 text-sm text-slate-300 leading-relaxed">
             <h2 className="font-display text-base font-bold text-torch-glow">
-              2. Dados Coletados
+              2. Dados coletados
             </h2>
             <p>
               Coletamos apenas o mínimo estritamente necessário para autenticar
@@ -77,19 +77,20 @@ export default function PrivacyPolicyPage() {
             </p>
             <ul className="list-disc pl-5 space-y-1.5 text-slate-300">
               <li>
-                <strong>Autenticação via Google OAuth:</strong> Ao optar por
+                <strong>Autenticação via Google OAuth:</strong> ao optar por
                 entrar com sua conta Google, recebemos apenas seu nome básico de
                 perfil, endereço de e-mail e URL da foto de perfil pública
                 fornecidos pelo Google. Não temos acesso à sua senha do Google
                 nem a outros dados da sua conta.
               </li>
               <li>
-                <strong>Autenticação por E-mail e Senha:</strong> Nome, endereço
-                de e-mail e senha armazenada exclusivamente na forma de hash
-                criptográfico (<code>bcrypt</code>).
+                <strong>Autenticação por e-mail e senha:</strong> nome,
+                nickname único, endereço de e-mail e senha armazenada
+                exclusivamente na forma de hash criptográfico (
+                <code>bcrypt</code>).
               </li>
               <li>
-                <strong>Dados de Jogo (RPG):</strong> Fichas de personagens,
+                <strong>Dados de jogo (RPG):</strong> fichas de personagens,
                 atributos, equipamentos e encontros de combate criados por você
                 dentro da plataforma.
               </li>
@@ -98,21 +99,29 @@ export default function PrivacyPolicyPage() {
 
           <section className="space-y-3 text-sm text-slate-300 leading-relaxed">
             <h2 className="font-display text-base font-bold text-torch-glow">
-              3. Finalidade e Armazenamento dos Dados
+              3. Finalidade e armazenamento dos dados
             </h2>
-            <p>
-              Os dados coletados são utilizados exclusivamente para:
-            </p>
+            <p>Os dados coletados são utilizados exclusivamente para:</p>
             <ul className="list-disc pl-5 space-y-1.5 text-slate-300">
-              <li>Identificar sua sessão e manter o isolamento seguro das suas fichas (multitenant por usuário).</li>
-              <li>Sincronizar seus personagens e encontros no banco de dados PostgreSQL serverless (Neon) e no armazenamento local do seu navegador/celular.</li>
-              <li>Não vendemos, alugamos ou compartilhamos seus dados pessoais com terceiros ou redes de publicidade.</li>
+              <li>
+                Identificar sua sessão e manter o isolamento seguro das suas
+                fichas (multitenant por usuário).
+              </li>
+              <li>
+                Sincronizar seus personagens e encontros no banco de dados
+                PostgreSQL serverless (Neon) e no armazenamento local do seu
+                navegador ou celular.
+              </li>
+              <li>
+                Não vendemos, alugamos ou compartilhamos seus dados pessoais com
+                terceiros ou redes de publicidade.
+              </li>
             </ul>
           </section>
 
           <section className="space-y-3 text-sm text-slate-300 leading-relaxed">
             <h2 className="font-display text-base font-bold text-torch-glow">
-              4. Cookies Essenciais
+              4. Cookies essenciais
             </h2>
             <p>
               Utilizamos apenas cookies técnicos de sessão (Auth.js / NextAuth)
@@ -124,24 +133,23 @@ export default function PrivacyPolicyPage() {
 
           <section className="space-y-3 text-sm text-slate-300 leading-relaxed">
             <h2 className="font-display text-base font-bold text-torch-glow">
-              5. Seus Direitos e Exclusão de Dados
+              5. Seus direitos e exclusão de dados
             </h2>
             <p>
               Você pode visualizar, editar ou excluir qualquer ficha de
-              personagem a qualquer momento diretamente pela interface do
-              aplicativo. Caso deseje a exclusão completa da sua conta de
-              usuário do banco de dados, basta entrar em contato pelo e-mail de
-              suporte abaixo.
+              personagem ou excluir permanentemente sua conta a qualquer momento
+              diretamente pela área <strong>Minha conta</strong> do aplicativo,
+              ou entrando em contato pelo e-mail de suporte abaixo.
             </p>
           </section>
 
           <section className="rounded-xl border border-stone-800 bg-dungeon-abyss p-4 text-xs sm:text-sm text-slate-300">
             <div className="flex items-center gap-2 font-display font-bold text-dungeon-parchment mb-1">
               <Mail className="h-4 w-4 text-torch-bright" />
-              <span>Contato do Responsável / Suporte</span>
+              <span>Contato do responsável e suporte</span>
             </div>
             <p>
-              Em caso de dúvidas sobre esta Política de Privacidade ou
+              Em caso de dúvidas sobre esta política de privacidade ou
               solicitações relativas aos seus dados, entre em contato pelo
               e-mail:{" "}
               <a

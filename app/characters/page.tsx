@@ -12,6 +12,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { AppShell } from "@/components/navigation/app-shell";
+import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import {
   loadStoredCharacters,
   deleteStoredCharacter,
@@ -50,21 +51,22 @@ export default function CharactersListPage() {
 
   return (
     <AppShell>
+      <Breadcrumbs items={[{ label: "Meus personagens" }]} />
       {/* Cabeçalho da Página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="font-display text-xl sm:text-2xl font-bold text-dungeon-parchment">
-            Meus Personagens D&D 3.5
+            Meus personagens D&D 3.5
           </h1>
           <p className="text-xs sm:text-sm text-slate-400">
             Fichas interativas baseadas na planilha oficial D&D 3.5 com cálculo
-            automático de modificadores, BBA, TRs e perícias.
+            automático de modificadores, BBA, testes de resistência e perícias.
           </p>
         </div>
 
         <Link href="/characters/new" className="runic-button shrink-0">
           <UserPlus className="h-4 w-4" />
-          <span>+ Criar Novo Personagem</span>
+          <span>+ Criar novo personagem</span>
         </Link>
       </div>
 
@@ -75,13 +77,13 @@ export default function CharactersListPage() {
             Nenhum personagem registrado ainda.
           </p>
           <p className="mt-1 text-xs text-slate-400">
-            Use o Assistente Inteligente 3.5 para criar seu primeiro herói ou
+            Use o assistente inteligente 3.5 para criar seu primeiro herói ou
             restaure os personagens icônicos de demonstração.
           </p>
           <div className="mt-4 flex flex-wrap justify-center gap-3">
             <Link href="/characters/new" className="runic-button">
               <UserPlus className="h-4 w-4" />
-              <span>Criar Novo Personagem</span>
+              <span>Criar novo personagem</span>
             </Link>
             <button
               type="button"
@@ -89,7 +91,7 @@ export default function CharactersListPage() {
               className="inline-flex min-h-[44px] items-center gap-2 rounded-lg border border-stone-700 bg-dungeon-slate px-4 py-2 text-xs font-semibold text-slate-200"
             >
               <RotateCcw className="h-3.5 w-3.5" />
-              <span>Restaurar Tordek & Mialee</span>
+              <span>Restaurar Tordek e Mialee</span>
             </button>
           </div>
         </div>
@@ -151,7 +153,7 @@ export default function CharactersListPage() {
                     <div className="flex items-center justify-between text-xs">
                       <span className="inline-flex items-center gap-1 font-semibold text-slate-300">
                         <Heart className="h-3.5 w-3.5 text-crimson-soft" />{" "}
-                        Pontos de Vida (PV)
+                        Pontos de vida (PV)
                       </span>
                       <span className="font-mono font-bold text-dungeon-parchment">
                         {char.currentHp} / {char.maxHp}
@@ -173,7 +175,7 @@ export default function CharactersListPage() {
                     <div className="mt-3 grid grid-cols-3 gap-2 pt-2.5 border-t border-stone-800/80 text-center">
                       <div>
                         <span className="block text-[10px] uppercase text-slate-400">
-                          CA (Toque/Surp)
+                          CA (toque/surp.)
                         </span>
                         <span className="font-mono text-sm font-bold text-torch-glow">
                           {char.armorClass}{" "}
@@ -234,7 +236,7 @@ export default function CharactersListPage() {
                     className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-lg border border-torch/40 bg-torch/15 px-3 py-2 text-xs font-semibold text-torch-glow hover:bg-torch/25 transition-colors"
                   >
                     <Swords className="h-4 w-4" />
-                    <span>Abrir Ficha Interativa 3.5</span>
+                    <span>Abrir ficha interativa 3.5</span>
                     <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
                 </div>

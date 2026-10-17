@@ -19,11 +19,11 @@ export function AppFooter({ className = "" }: { className?: string }) {
           <span className="font-display font-semibold text-dungeon-parchment">
             Dragões & Masmorras
           </span>
-          <span className="text-slate-500">• Sistema de Apoio D&D v.3.5</span>
+          <span className="text-slate-500">• Sistema de apoio D&D v.3.5</span>
         </div>
 
         <nav
-          aria-label="Links Legais e Institucional"
+          aria-label="Links legais e institucionais"
           className="flex flex-wrap items-center justify-center gap-4 text-xs"
         >
           <Link
@@ -36,13 +36,13 @@ export function AppFooter({ className = "" }: { className?: string }) {
             href="/privacy"
             className="text-slate-400 hover:text-torch-glow transition-colors"
           >
-            Política de Privacidade
+            Política de privacidade
           </Link>
           <Link
             href="/terms"
             className="text-slate-400 hover:text-torch-glow transition-colors"
           >
-            Termos de Serviço
+            Termos de serviço
           </Link>
         </nav>
       </div>

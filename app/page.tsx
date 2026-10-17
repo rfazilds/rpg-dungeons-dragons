@@ -104,7 +104,7 @@ function AuthGateContent() {
       setUsernameStatus({
         checking: false,
         available: false,
-        message: "Use 3 a 30 letras, números ou underscores (_).",
+        message: "Use de 3 a 30 letras, números ou underscores (_).",
       });
       return;
     }
@@ -203,7 +203,6 @@ function AuthGateContent() {
           return;
         }
 
-        // Autentica a sessão imediatamente para que o usuário já esteja logado ao verificar o código
         await signIn("credentials", {
           email: parsed.data.email,
           password: parsed.data.password,
@@ -261,7 +260,7 @@ function AuthGateContent() {
       }
 
       setSuccessMsg(
-        "E-mail confirmado com sucesso! Entrando no Salão Principal..."
+        "E-mail confirmado com sucesso! Entrando no salão principal..."
       );
       setTimeout(() => {
         router.push("/dashboard");
@@ -349,7 +348,7 @@ function AuthGateContent() {
           </div>
 
           <p className="mt-1 text-xs sm:text-sm text-slate-400">
-            Grimório de Personagens, Escudo do Mestre & Acervo Canônico v.3.5
+            Grimório de personagens, escudo do mestre e acervo canônico D&D v.3.5
           </p>
         </div>
 
@@ -362,7 +361,7 @@ function AuthGateContent() {
                   <ShieldCheck className="h-5 w-5" />
                 </div>
                 <h2 className="font-display text-lg font-bold text-dungeon-parchment">
-                  Selo de Confirmação por E-mail
+                  Confirmação por e-mail
                 </h2>
                 <p className="mt-1 text-xs text-slate-400">
                   Digite o código alfanumérico de 6 dígitos enviado para{" "}
@@ -390,7 +389,7 @@ function AuthGateContent() {
               {devPreviewCode && (
                 <div className="rounded-lg border border-amber-500/40 bg-amber-950/30 p-3 text-center text-xs text-amber-200">
                   <span className="block text-[10px] uppercase tracking-wider text-amber-400">
-                    Código Gerado (Modo Sandbox / Dev)
+                    Código gerado (modo de teste)
                   </span>
                   <span className="mt-1 inline-block font-mono text-base font-bold tracking-widest text-torch-glow">
                     {devPreviewCode}
@@ -414,8 +413,8 @@ function AuthGateContent() {
                   <ShieldCheck className="h-4 w-4" />
                   <span>
                     {loading
-                      ? "Validando Código..."
-                      : "Confirmar Código & Entrar no Salão"}
+                      ? "Validando código..."
+                      : "Confirmar código e entrar no salão"}
                   </span>
                 </button>
               </form>
@@ -440,7 +439,7 @@ function AuthGateContent() {
                   onClick={() => router.push("/dashboard")}
                   className="text-slate-400 hover:text-dungeon-parchment"
                 >
-                  Confirmar depois e ir ao Salão →
+                  Confirmar depois e ir ao salão →
                 </button>
               </div>
             </div>
@@ -542,7 +541,7 @@ function AuthGateContent() {
                   <>
                     <div>
                       <label className="block text-xs font-medium text-slate-300 mb-1">
-                        Nome Completo ou Título de Aventureiro
+                        Nome completo ou título de aventureiro
                       </label>
                       <div className="relative">
                         <User className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
@@ -550,7 +549,7 @@ function AuthGateContent() {
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
-                          placeholder="Ex: Sir Roland de Cormyr"
+                          placeholder="Ex.: Sir Roland de Cormyr"
                           className="carved-input pl-9"
                           autoComplete="name"
                         />
@@ -559,7 +558,7 @@ function AuthGateContent() {
 
                     <div>
                       <label className="block text-xs font-medium text-slate-300 mb-1">
-                        Nickname Único na Guilda
+                        Nickname único na guilda
                       </label>
                       <div className="relative">
                         <AtSign className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
@@ -593,7 +592,7 @@ function AuthGateContent() {
                           }`}
                         >
                           {usernameStatus.checking
-                            ? "Consultando arquivos da Guilda..."
+                            ? "Consultando arquivos da guilda..."
                             : usernameStatus.message}
                         </p>
                       )}
@@ -630,7 +629,7 @@ function AuthGateContent() {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder={
                         mode === "register"
-                          ? "Mínimo 8 caracteres (letras e números)"
+                          ? "Mínimo de 8 caracteres (letras e números)"
                           : "••••••••"
                       }
                       className="carved-input pl-9"
@@ -646,7 +645,7 @@ function AuthGateContent() {
                 {mode === "register" && (
                   <div>
                     <label className="block text-xs font-medium text-slate-300 mb-1">
-                      Confirmar Senha
+                      Confirmar senha
                     </label>
                     <div className="relative">
                       <KeyRound className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
@@ -672,8 +671,8 @@ function AuthGateContent() {
                     {loading
                       ? "Autenticando..."
                       : mode === "login"
-                      ? "Abrir Portões da Cripta"
-                      : "Forjar Conta & Receber Código"}
+                      ? "Abrir portões da cripta"
+                      : "Forjar conta e receber código"}
                   </span>
                   <ArrowRight className="h-4 w-4" />
                 </button>
@@ -685,14 +684,14 @@ function AuthGateContent() {
                   type="button"
                   onClick={() =>
                     setSessionCookieAndRedirect(
-                      "Mestre & Jogador D&D 3.5",
+                      "Mestre e jogador D&D 3.5",
                       "mesa@dragoes.dnd"
                     )
                   }
                   className="flex min-h-[42px] w-full items-center justify-center gap-2 rounded-lg border border-torch/30 bg-torch/10 px-3 py-2 text-xs font-medium text-torch-glow hover:bg-torch/20 transition-colors"
                 >
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>Acesso Rápido de Mesa (Entrar com 1 Toque)</span>
+                  <span>Acesso rápido de mesa (entrar com 1 toque)</span>
                 </button>
               </div>
             </>

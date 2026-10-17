@@ -1,0 +1,50 @@
+import type { DndSkillDefinition } from "../types";
+
+/**
+ * Catálogo Canônico de Perícias da Planilha Oficial D&D 3.5 (assets/ficha-personagem-dnd-35.pdf)
+ * - untrained: true indica perícia que pode ser usada sem graduação (■ na ficha 3.5)
+ * - armorCheckPenalty: true indica penalidade de armadura (* na ficha 3.5)
+ */
+export const DND_SKILLS: DndSkillDefinition[] = [
+  { id: "abrir_fechaduras", name: "Abrir Fechaduras", ability: "dexterity", abilityShort: "DES", untrained: false, armorCheckPenalty: false },
+  { id: "acrobacia", name: "Acrobacia", ability: "dexterity", abilityShort: "DES", untrained: false, armorCheckPenalty: true },
+  { id: "adestrar_animais", name: "Adestrar Animais", ability: "charisma", abilityShort: "CAR", untrained: false, armorCheckPenalty: false },
+  { id: "arte_da_fuga", name: "Arte da Fuga", ability: "dexterity", abilityShort: "DES", untrained: true, armorCheckPenalty: true },
+  { id: "atuacao", name: "Atuação", ability: "charisma", abilityShort: "CAR", untrained: true, armorCheckPenalty: false },
+  { id: "avaliacao", name: "Avaliação", ability: "intelligence", abilityShort: "INT", untrained: true, armorCheckPenalty: false },
+  { id: "blefar", name: "Blefar", ability: "charisma", abilityShort: "CAR", untrained: true, armorCheckPenalty: false },
+  { id: "cavalgar", name: "Cavalgar", ability: "dexterity", abilityShort: "DES", untrained: true, armorCheckPenalty: false },
+  { id: "concentracao", name: "Concentração", ability: "constitution", abilityShort: "CON", untrained: true, armorCheckPenalty: false },
+  { id: "conhecimento_arcano", name: "Conhecimento (Arcano)", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "conhecimento_historia", name: "Conhecimento (História)", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "conhecimento_local", name: "Conhecimento (Local)", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "conhecimento_masmorras", name: "Conhecimento (Masmorras)", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "conhecimento_natureza", name: "Conhecimento (Natureza)", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "conhecimento_nobreza", name: "Conhecimento (Nobreza)", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "conhecimento_religiao", name: "Conhecimento (Religião)", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "cura", name: "Cura", ability: "wisdom", abilityShort: "SAB", untrained: true, armorCheckPenalty: false },
+  { id: "decifrar_escrita", name: "Decifrar Escrita", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "diplomacia", name: "Diplomacia", ability: "charisma", abilityShort: "CAR", untrained: true, armorCheckPenalty: false },
+  { id: "disfarce", name: "Disfarce", ability: "charisma", abilityShort: "CAR", untrained: true, armorCheckPenalty: false },
+  { id: "equilibrio", name: "Equilíbrio", ability: "dexterity", abilityShort: "DES", untrained: true, armorCheckPenalty: true },
+  { id: "escalar", name: "Escalar", ability: "strength", abilityShort: "FOR", untrained: true, armorCheckPenalty: true },
+  { id: "esconder_se", name: "Esconder-se", ability: "dexterity", abilityShort: "DES", untrained: true, armorCheckPenalty: true },
+  { id: "falsificacao", name: "Falsificação", ability: "intelligence", abilityShort: "INT", untrained: true, armorCheckPenalty: false },
+  { id: "furtividade", name: "Furtividade", ability: "dexterity", abilityShort: "DES", untrained: true, armorCheckPenalty: true },
+  { id: "identificar_magia", name: "Identificar Magia", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "intimidar", name: "Intimidar", ability: "charisma", abilityShort: "CAR", untrained: true, armorCheckPenalty: false },
+  { id: "natacao", name: "Natação", ability: "strength", abilityShort: "FOR", untrained: true, armorCheckPenalty: true },
+  { id: "observar", name: "Observar", ability: "wisdom", abilityShort: "SAB", untrained: true, armorCheckPenalty: false },
+  { id: "obter_informacao", name: "Obter Informação", ability: "charisma", abilityShort: "CAR", untrained: true, armorCheckPenalty: false },
+  { id: "oficios", name: "Ofícios", ability: "intelligence", abilityShort: "INT", untrained: true, armorCheckPenalty: false },
+  { id: "operar_mecanismo", name: "Operar Mecanismo", ability: "intelligence", abilityShort: "INT", untrained: false, armorCheckPenalty: false },
+  { id: "ouvir", name: "Ouvir", ability: "wisdom", abilityShort: "SAB", untrained: true, armorCheckPenalty: false },
+  { id: "procurar", name: "Procurar", ability: "intelligence", abilityShort: "INT", untrained: true, armorCheckPenalty: false },
+  { id: "profissao", name: "Profissão", ability: "wisdom", abilityShort: "SAB", untrained: false, armorCheckPenalty: false },
+  { id: "prestidigitacao", name: "Prestidigitação", ability: "dexterity", abilityShort: "DES", untrained: false, armorCheckPenalty: true },
+  { id: "saltar", name: "Saltar", ability: "strength", abilityShort: "FOR", untrained: true, armorCheckPenalty: true },
+  { id: "sentir_motivacao", name: "Sentir Motivação", ability: "wisdom", abilityShort: "SAB", untrained: true, armorCheckPenalty: false },
+  { id: "sobrevivencia", name: "Sobrevivência", ability: "wisdom", abilityShort: "SAB", untrained: true, armorCheckPenalty: false },
+  { id: "usar_cordas", name: "Usar Cordas", ability: "dexterity", abilityShort: "DES", untrained: true, armorCheckPenalty: false },
+  { id: "usar_instrumento_magico", name: "Usar Instrumento Mágico", ability: "charisma", abilityShort: "CAR", untrained: false, armorCheckPenalty: false },
+];

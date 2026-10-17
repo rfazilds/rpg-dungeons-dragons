@@ -1,0 +1,91 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  .dark {
+    --background: 216 19% 5%;        /* #0b0d10 - Abismo / Cripta */
+    --foreground: 210 40% 96%;       /* #f1f5f9 - Pergaminho / Cinza-Gelo */
+
+    --card: 216 21% 9%;              /* #12161c - Pedra Úmida */
+    --card-foreground: 210 40% 96%;
+
+    --popover: 216 21% 9%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 32 95% 44%;           /* #d97706 - Ouro Envelhecido / Tocha */
+    --primary-foreground: 216 19% 5%;
+
+    --secondary: 220 26% 14%;        /* #1a202c - Ardósia Elevada */
+    --secondary-foreground: 210 40% 96%;
+
+    --muted: 220 26% 14%;
+    --muted-foreground: 215 20% 65%; /* #94a3b8 */
+
+    --accent: 189 94% 43%;           /* #06b6d4 - Ciano Etéreo / Arcano */
+    --accent-foreground: 210 40% 96%;
+
+    --destructive: 0 72% 51%;        /* #dc2626 - Carmesim / Sangue */
+    --destructive-foreground: 210 40% 96%;
+
+    --border: 24 6% 16%;             /* #292524 - stone-800 */
+    --input: 24 6% 16%;
+    --ring: 38 92% 50%;              /* #f59e0b - Brilho de Tocha */
+
+    --radius: 0.625rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    color-scheme: dark;
+    touch-action: manipulation;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-dungeon-abyss text-dungeon-parchment font-sans antialiased selection:bg-torch/30 selection:text-torch-glow;
+    background-image: radial-gradient(
+      ellipse at 50% 0%,
+      rgba(217, 119, 6, 0.07) 0%,
+      rgba(18, 22, 28, 0.96) 55%,
+      #0b0d10 100%
+    );
+    min-height: 100dvh;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-heading {
+    @apply font-display tracking-wide;
+  }
+}
+
+@layer components {
+  /* Painel de pedra lapidada: sem backdrop-blur pesado em telas pequenas para economizar bateria/GPU no celular */
+  .dungeon-panel {
+    @apply bg-dungeon-stone/95 sm:bg-dungeon-stone/85 sm:backdrop-blur-md border border-stone-800/90 shadow-dungeon-card rounded-xl;
+  }
+
+  /* Botão rúnico com área de toque mínima de 44px para celulares */
+  .runic-button {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-lg bg-gradient-to-b from-torch-bright to-torch px-4 py-2.5 text-sm font-semibold text-dungeon-abyss shadow-torch-glow transition-all duration-150 hover:brightness-110 active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none select-none;
+  }
+
+  /* Input esculpido na pedra: text-base no mobile evita zoom automático do iOS Safari ao focar */
+  .carved-input {
+    @apply w-full min-h-[44px] rounded-lg border border-stone-800 bg-dungeon-abyss/95 px-3.5 py-2 text-base sm:text-sm text-dungeon-parchment shadow-inner-carved placeholder:text-slate-500 focus:border-torch-bright focus:outline-none focus:ring-1 focus:ring-torch-bright/60 transition-colors;
+  }
+
+  /* Safe-area bottom padding para celulares com barra de gesto (iPhone/Android modernos) */
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+}

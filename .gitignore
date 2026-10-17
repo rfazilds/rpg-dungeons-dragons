@@ -1,0 +1,40 @@
+# Dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# Next.js build output
+/.next/
+/out/
+/build
+
+# Production & Vercel
+.vercel
+
+# Environment variables (NEVER commit secrets)
+.env
+.env.*
+!.env.example
+
+# Livros binários pesados (>50MB) mantidos localmente (evita bloqueio de 100MB do GitHub/Vercel)
+# As 16 aventuras leves (assets/Aventuras/*.pdf) e a ficha (558KB) permanecem versionadas
+assets/Livro*.pdf
+
+# Debug & Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# OS & Editor files
+.DS_Store
+*.pem
+.idea/
+.vscode/
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# Drizzle local artifacts
+drizzle/meta/_journal.json.bak

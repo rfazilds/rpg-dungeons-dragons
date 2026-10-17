@@ -1,7 +1,16 @@
 import type { NextAuthConfig } from "next-auth";
 import Google from "next-auth/providers/google";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/characters", "/dm", "/compendium"];
+const PROTECTED_PREFIXES = [
+  "/dashboard",
+  "/characters",
+  "/dm",
+  "/compendium",
+  "/settings",
+  "/account",
+  "/community",
+  "/onboarding",
+];
 
 export const authConfig: NextAuthConfig = {
   trustHost: true,

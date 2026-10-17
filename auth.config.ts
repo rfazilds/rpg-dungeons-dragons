@@ -4,6 +4,7 @@ import Google from "next-auth/providers/google";
 const PROTECTED_PREFIXES = ["/dashboard", "/characters", "/dm", "/compendium"];
 
 export const authConfig: NextAuthConfig = {
+  trustHost: true,
   pages: {
     signIn: "/",
     error: "/",

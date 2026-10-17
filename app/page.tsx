@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import {
   Shield,
@@ -11,19 +11,42 @@ import {
   User,
   ArrowRight,
   AlertCircle,
+  CheckCircle2,
   Sparkles,
 } from "lucide-react";
 import { loginSchema, registerSchema } from "@/lib/validations/auth";
 
-export default function AuthGatePage() {
+function AuthGateContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const [mode, setMode] = useState<"login" | "register">("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const urlError = searchParams.get("error");
+    if (!urlError) return;
+
+    if (urlError === "Configuration") {
+      setError(
+        "O login com Google requer as variáveis AUTH_GOOGLE_ID e AUTH_GOOGLE_SECRET configuradas no .env.local e na Vercel."
+      );
+    } else if (urlError === "OAuthAccountNotLinked") {
+      setError(
+        "Este e-mail já está vinculado a outro método de login."
+      );
+    } else if (urlError === "AccessDenied") {
+      setError("Acesso cancelado ou negado pelo Google.");
+    } else {
+      setError(`Não foi possível concluir a autenticação (${urlError}).`);
+    }
+  }, [searchParams]);
 
   function setSessionCookieAndRedirect(userName: string, userEmail: string) {
     document.cookie = `sanctum_mesa_session=${encodeURIComponent(
@@ -35,6 +58,7 @@ export default function AuthGatePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    setSuccessMsg(null);
     setLoading(true);
 
     try {
@@ -45,7 +69,23 @@ export default function AuthGatePage() {
           setLoading(false);
           return;
         }
-        setSessionCookieAndRedirect(email.split("@")[0], email);
+
+        const res = await signIn("credentials", {
+          email: parsed.data.email,
+          password: parsed.data.password,
+          redirect: false,
+        });
+
+        if (res?.error) {
+          setError("E-mail ou senha incorretos.");
+          setLoading(false);
+          return;
+        }
+
+        setSessionCookieAndRedirect(
+          parsed.data.email.split("@")[0],
+          parsed.data.email
+        );
       } else {
         const parsed = registerSchema.safeParse({
           name,
@@ -58,7 +98,29 @@ export default function AuthGatePage() {
           setLoading(false);
           return;
         }
-        setSessionCookieAndRedirect(name, email);
+
+        const regRes = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(parsed.data),
+        });
+
+        const regData = await regRes.json();
+        if (!regRes.ok) {
+          setError(regData.error || "Não foi possível criar a conta.");
+          setLoading(false);
+          return;
+        }
+
+        // Autentica automaticamente após cadastrar no Neon
+        await signIn("credentials", {
+          email: parsed.data.email,
+          password: parsed.data.password,
+          redirect: false,
+        });
+
+        setSuccessMsg("Conta criada com sucesso! Entrando no Salão...");
+        setSessionCookieAndRedirect(parsed.data.name, parsed.data.email);
       }
     } catch {
       setError("Falha ao autenticar. Verifique sua conexão.");
@@ -68,11 +130,14 @@ export default function AuthGatePage() {
 
   async function handleGoogleLogin() {
     setError(null);
+    setSuccessMsg(null);
     setLoading(true);
     try {
       await signIn("google", { callbackUrl: "/dashboard" });
     } catch {
-      setError("Configure AUTH_GOOGLE_ID e AUTH_GOOGLE_SECRET no arquivo .env.");
+      setError(
+        "Erro ao redirecionar para o Google. Verifique AUTH_GOOGLE_ID e AUTH_GOOGLE_SECRET."
+      );
       setLoading(false);
     }
   }
@@ -102,6 +167,7 @@ export default function AuthGatePage() {
               onClick={() => {
                 setMode("login");
                 setError(null);
+                setSuccessMsg(null);
               }}
               className={`min-h-[42px] rounded-md text-xs sm:text-sm font-semibold transition-colors ${
                 mode === "login"
@@ -116,6 +182,7 @@ export default function AuthGatePage() {
               onClick={() => {
                 setMode("register");
                 setError(null);
+                setSuccessMsg(null);
               }}
               className={`min-h-[42px] rounded-md text-xs sm:text-sm font-semibold transition-colors ${
                 mode === "register"
@@ -127,13 +194,13 @@ export default function AuthGatePage() {
             </button>
           </div>
 
-          {/* Login 1-Clique com Google */}
+          {/* Login / Cadastro 1-Clique com Google */}
           <div className="mt-5">
             <button
               type="button"
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="flex min-h-[46px] w-full items-center justify-center gap-2.5 rounded-lg border border-stone-700 bg-dungeon-slate px-4 py-2.5 text-sm font-semibold text-dungeon-parchment hover:border-torch/60 hover:bg-stone-800 transition-colors active:scale-[0.99]"
+              className="flex min-h-[46px] w-full items-center justify-center gap-2.5 rounded-lg border border-stone-700 bg-dungeon-slate px-4 py-2.5 text-sm font-semibold text-dungeon-parchment hover:border-torch/60 hover:bg-stone-800 transition-colors active:scale-[0.99] disabled:opacity-60"
             >
               <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
                 <path
@@ -153,7 +220,11 @@ export default function AuthGatePage() {
                   d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.8C3.5 20.9 7.4 24 12 24z"
                 />
               </svg>
-              <span>Continuar com o Google</span>
+              <span>
+                {mode === "login"
+                  ? "Continuar com o Google"
+                  : "Cadastrar com o Google"}
+              </span>
             </button>
           </div>
 
@@ -172,7 +243,14 @@ export default function AuthGatePage() {
             </div>
           )}
 
-          {/* Formulário com Validação Zod */}
+          {successMsg && (
+            <div className="mb-4 flex items-start gap-2 rounded-lg border border-vital/60 bg-vital-deep/40 p-3 text-xs text-emerald-200">
+              <CheckCircle2 className="h-4 w-4 text-vital shrink-0 mt-0.5" />
+              <span>{successMsg}</span>
+            </div>
+          )}
+
+          {/* Formulário com Validação Zod + Banco Neon */}
           <form onSubmit={handleSubmit} className="space-y-3.5" noValidate>
             {mode === "register" && (
               <div>
@@ -259,7 +337,9 @@ export default function AuthGatePage() {
             >
               <Flame className="h-4 w-4" />
               <span>
-                {mode === "login"
+                {loading
+                  ? "Autenticando..."
+                  : mode === "login"
                   ? "Abrir Portões da Cripta"
                   : "Forjar Conta & Entrar"}
               </span>
@@ -290,5 +370,19 @@ export default function AuthGatePage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AuthGatePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[100dvh] flex items-center justify-center text-xs text-slate-400">
+          Carregando portões do Sanctum...
+        </div>
+      }
+    >
+      <AuthGateContent />
+    </Suspense>
   );
 }

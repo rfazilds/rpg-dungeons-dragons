@@ -2,7 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import {
   Shield,
   Users,
@@ -49,6 +50,14 @@ const NAV_ITEMS = [
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    document.cookie =
+      "sanctum_mesa_session=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    await signOut({ redirect: false });
+    router.push("/");
+  }
 
   return (
     <div className="min-h-[100dvh] flex flex-col md:flex-row bg-dungeon-abyss text-dungeon-parchment">
@@ -68,13 +77,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </Link>
 
-        <Link
-          href="/"
+        <button
+          type="button"
+          onClick={handleLogout}
           className="inline-flex items-center gap-1 rounded-lg border border-stone-800 bg-dungeon-stone px-2.5 py-1.5 text-xs text-slate-300 active:bg-stone-800"
         >
           <LogOut className="h-3.5 w-3.5" />
           <span>Sair</span>
-        </Link>
+        </button>
       </header>
 
       {/* Sidebar Desktop */}
@@ -126,13 +136,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               3 Livros Básicos + Ficha 3.5 + 16 Aventuras (N1–N20) ativos.
             </p>
           </div>
-          <Link
-            href="/"
+          <button
+            type="button"
+            onClick={handleLogout}
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg border border-stone-800 bg-dungeon-abyss px-3 py-2 text-xs font-medium text-slate-300 hover:border-stone-700 hover:text-white"
           >
             <LogOut className="h-3.5 w-3.5" />
             <span>Trocar Conta / Sair</span>
-          </Link>
+          </button>
         </div>
       </aside>
 

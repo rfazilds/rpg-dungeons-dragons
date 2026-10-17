@@ -15,6 +15,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { loginSchema, registerSchema } from "@/lib/validations/auth";
+import { AppFooter } from "@/components/navigation/app-footer";
 
 function AuthGateContent() {
   const router = useRouter();
@@ -384,6 +385,8 @@ function AuthGateContent() {
           Otimizado para celulares e conexões móveis • Regras oficiais D&D v.3.5
         </p>
       </div>
+
+      <AppFooter className="mt-8 border-t-0 bg-transparent" />
     </div>
   );
 }

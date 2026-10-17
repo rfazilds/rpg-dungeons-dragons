@@ -14,6 +14,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { FloatingDiceRoller } from "@/components/dice/floating-dice-roller";
+import { AppFooter } from "@/components/navigation/app-footer";
 
 const NAV_ITEMS = [
   {
@@ -172,11 +173,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      {/* Conteúdo Principal */}
-      <main className="flex-1 md:pl-64 pb-24 md:pb-10">
-        <div className="mx-auto max-w-6xl px-3.5 py-4 sm:px-6 sm:py-6">
+      {/* Conteúdo Principal + Rodapé Institucional */}
+      <main className="flex-1 flex flex-col justify-between md:pl-64 pb-24 md:pb-0">
+        <div className="mx-auto w-full max-w-6xl px-3.5 py-4 sm:px-6 sm:py-6">
           {children}
         </div>
+        <AppFooter className="mt-8" />
       </main>
 
       {/* Barra de Navegação Inferior Fixa para Todos os Celulares */}

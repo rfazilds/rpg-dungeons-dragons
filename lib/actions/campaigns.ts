@@ -8,14 +8,22 @@ import {
   campaigns,
   campaignMembers,
   campaignMessages,
+  tableCombatants,
   characters,
   users,
   type CharacterAttackEntry,
   type CharacterSkillEntry,
   type CharacterSpellbook,
   type CharacterEquipmentData,
+  type MonsterStatBlockJson,
 } from "@/lib/db/schema";
 import { generateSixCharCode } from "@/lib/email/verification";
+import {
+  ALL_DND35_MONSTERS,
+  queryMonstersCatalog,
+  type DndMonsterEntry,
+  type MonsterCrBracket,
+} from "@/lib/dnd/data/monsters";
 
 export interface ClientCharacterInput {
   id?: string;
@@ -719,6 +727,35 @@ export async function getCampaignRoomDataAction(campaignId: string) {
   const myRole: "DM" | "PLAYER" =
     camp.dmId === user.id ? "DM" : myMembership?.role || "PLAYER";
 
+  // Busca todos os combatentes persistidos da mesa (table_combatants)
+  const rawCombatants = await db
+    .select()
+    .from(tableCombatants)
+    .where(eq(tableCombatants.campaignId, camp.id))
+    .orderBy(desc(tableCombatants.initiative), asc(tableCombatants.createdAt));
+
+  const visibleCombatants = rawCombatants
+    .filter((c) => myRole === "DM" || !c.isHiddenFromPlayers)
+    .map((c) => ({
+      id: c.id,
+      campaignId: c.campaignId,
+      characterId: c.characterId,
+      type: c.type,
+      faction: c.faction,
+      name: c.name,
+      avatarUrl: c.avatarUrl,
+      initiative: c.initiative,
+      initiativeModifier: c.initiativeModifier,
+      hasActedThisRound: c.hasActedThisRound,
+      currentHp: c.currentHp,
+      maxHp: c.maxHp,
+      tempHp: c.tempHp,
+      armorClass: c.armorClass,
+      conditions: c.conditions || [],
+      statBlock: c.statBlock || null,
+      isHiddenFromPlayers: c.isHiddenFromPlayers,
+    }));
+
   return {
     found: true,
     currentUser: {
@@ -740,6 +777,7 @@ export async function getCampaignRoomDataAction(campaignId: string) {
     },
     members: enrichedMembers,
     messages,
+    tableCombatants: visibleCombatants,
   };
 }
 
@@ -820,6 +858,20 @@ export async function updateCampaignCharacterHpAction(input: {
     })
     .where(eq(characters.id, charRow.id));
 
+  // Sincroniza também com table_combatants caso o personagem esteja no combate da mesa
+  await db
+    .update(tableCombatants)
+    .set({
+      currentHp: nextHp,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(tableCombatants.campaignId, input.campaignId),
+        eq(tableCombatants.characterId, charRow.id)
+      )
+    );
+
   return {
     success: true,
     currentHp: nextHp,
@@ -872,3 +924,400 @@ export async function leaveCampaignAction(campaignId: string) {
     isDm: false,
   };
 }
+
+// ============================================================================
+// FASE 4: BUSCA PAGINADA DE MONSTROS & INTEGRAÇÃO COMPÊNDIO ↔ MESAS DE JOGO
+// ============================================================================
+
+export async function searchMonstersCompendiumAction(input: {
+  query?: string;
+  crBracket?: MonsterCrBracket;
+  page?: number;
+  pageSize?: number;
+}) {
+  return queryMonstersCatalog(input);
+}
+
+export async function getActiveDmTablesAction(): Promise<{
+  authenticated: boolean;
+  tables: Array<{
+    id: string;
+    code: string;
+    name: string;
+    description: string;
+  }>;
+}> {
+  const user = await resolveCurrentGuildUser();
+  if (!user) {
+    return { authenticated: false, tables: [] };
+  }
+
+  const rows = await db
+    .select({
+      id: campaigns.id,
+      code: campaigns.code,
+      name: campaigns.name,
+      description: campaigns.description,
+    })
+    .from(campaigns)
+    .where(and(eq(campaigns.dmId, user.id), eq(campaigns.isActive, true)))
+    .orderBy(desc(campaigns.createdAt));
+
+  return {
+    authenticated: true,
+    tables: rows.map((r) => ({
+      id: r.id,
+      code: r.code,
+      name: r.name,
+      description: r.description || "",
+    })),
+  };
+}
+
+export async function sendMonstersToTableAction(input: {
+  campaignId: string;
+  monsterId: string;
+  quantity: number;
+  faction?: "ENEMY" | "NEUTRAL" | "ALLY";
+  isHiddenFromPlayers?: boolean;
+}): Promise<{
+  success: boolean;
+  error?: string;
+  addedCount?: number;
+  monsterName?: string;
+  campaignName?: string;
+  createdNames?: string[];
+}> {
+  const user = await resolveCurrentGuildUser();
+  if (!user) {
+    return {
+      success: false,
+      error: "Sua sessão expirou. Faça login novamente.",
+    };
+  }
+
+  if (!UUID_REGEX.test(input.campaignId)) {
+    return {
+      success: false,
+      error: "Mesa selecionada inválida.",
+    };
+  }
+
+  const quantity = Math.max(1, Math.min(10, Math.floor(input.quantity || 1)));
+
+  // Validação estrita de permissão: garantir que quem está enviando é realmente o Mestre da mesa
+  const [camp] = await db
+    .select()
+    .from(campaigns)
+    .where(
+      and(
+        eq(campaigns.id, input.campaignId),
+        eq(campaigns.dmId, user.id),
+        eq(campaigns.isActive, true)
+      )
+    )
+    .limit(1);
+
+  if (!camp) {
+    return {
+      success: false,
+      error:
+        "Permissão negada: apenas o Mestre criador de uma mesa ativa pode enviar criaturas para o combate.",
+    };
+  }
+
+  const monster: DndMonsterEntry | undefined = ALL_DND35_MONSTERS.find(
+    (m) => m.id === input.monsterId
+  );
+
+  if (!monster) {
+    return {
+      success: false,
+      error: "Criatura não encontrada no Compêndio D&D 3.5.",
+    };
+  }
+
+  // Verifica quantos combatentes com o mesmo nome-base já existem na mesa para numerar sequencialmente
+  const existingCombatants = await db
+    .select({ name: tableCombatants.name })
+    .from(tableCombatants)
+    .where(eq(tableCombatants.campaignId, camp.id));
+
+  const baseName = monster.name;
+  const existingSameBaseCount = existingCombatants.filter(
+    (c) =>
+      c.name === baseName ||
+      c.name.startsWith(`${baseName} `)
+  ).length;
+
+  const statBlockPayload: MonsterStatBlockJson = {
+    challengeRating: monster.challengeRating,
+    sizeAndType: monster.sizeAndType,
+    hitDice: monster.hitDice,
+    speed: monster.speed,
+    touchArmorClass: monster.touchAc,
+    flatFootedArmorClass: monster.flatFootedAc,
+    armorClassText: monster.armorClass,
+    baseAttackGrapple: monster.baseAttackGrapple,
+    attacks: monster.attack,
+    specialAttacks: monster.specialAttacks,
+    specialQualities: monster.specialQualities,
+    saves: monster.saves,
+    abilities: monster.abilities,
+    sourcePage: monster.sourcePage,
+  };
+
+  const rowsToInsert = [];
+  const createdNames: string[] = [];
+
+  for (let i = 1; i <= quantity; i++) {
+    const seqNumber = existingSameBaseCount + i;
+    const numberedName =
+      quantity > 1 || existingSameBaseCount > 0
+        ? `${baseName} ${seqNumber}`
+        : baseName;
+
+    const rolledInitiative =
+      Math.floor(Math.random() * 20) + 1 + monster.initiative;
+
+    createdNames.push(numberedName);
+    rowsToInsert.push({
+      campaignId: camp.id,
+      characterId: null,
+      type: "MONSTER" as const,
+      faction: input.faction || ("ENEMY" as const),
+      name: numberedName.slice(0, 120),
+      avatarUrl: null,
+      initiative: rolledInitiative,
+      initiativeModifier: monster.initiative,
+      hasActedThisRound: false,
+      currentHp: monster.hp,
+      maxHp: monster.hp,
+      tempHp: 0,
+      armorClass: monster.acValue || parseInt(monster.armorClass, 10) || 15,
+      conditions: [] as string[],
+      statBlock: statBlockPayload,
+      isHiddenFromPlayers: Boolean(input.isHiddenFromPlayers),
+    });
+  }
+
+  await db.insert(tableCombatants).values(rowsToInsert);
+
+  if (!input.isHiddenFromPlayers) {
+    await db.insert(campaignMessages).values({
+      campaignId: camp.id,
+      userId: user.id,
+      characterName: `Mestre @${user.username}`,
+      content: `⚔️ O Mestre adicionou ${quantity}x ${baseName} (ND ${monster.challengeRating}) ao combate da mesa!`,
+      type: "SYSTEM",
+    });
+  }
+
+  return {
+    success: true,
+    addedCount: quantity,
+    monsterName: baseName,
+    campaignName: camp.name,
+    createdNames,
+  };
+}
+
+export async function updateTableCombatantHpAction(input: {
+  campaignId: string;
+  combatantId: string;
+  delta: number;
+}) {
+  const user = await resolveCurrentGuildUser();
+  if (!user) {
+    return { success: false, error: "Não autenticado." };
+  }
+
+  const [combatant] = await db
+    .select()
+    .from(tableCombatants)
+    .where(
+      and(
+        eq(tableCombatants.id, input.combatantId),
+        eq(tableCombatants.campaignId, input.campaignId)
+      )
+    )
+    .limit(1);
+
+  if (!combatant) {
+    return { success: false, error: "Combatente não encontrado." };
+  }
+
+  const nextHp = Math.max(
+    -20,
+    Math.min(combatant.maxHp, combatant.currentHp + input.delta)
+  );
+
+  await db
+    .update(tableCombatants)
+    .set({
+      currentHp: nextHp,
+      updatedAt: new Date(),
+    })
+    .where(eq(tableCombatants.id, combatant.id));
+
+  if (combatant.characterId) {
+    await db
+      .update(characters)
+      .set({
+        currentHp: nextHp,
+        updatedAt: new Date(),
+      })
+      .where(eq(characters.id, combatant.characterId));
+  }
+
+  return {
+    success: true,
+    currentHp: nextHp,
+    maxHp: combatant.maxHp,
+  };
+}
+
+export async function removeTableCombatantAction(input: {
+  campaignId: string;
+  combatantId: string;
+}) {
+  const user = await resolveCurrentGuildUser();
+  if (!user) {
+    return { success: false, error: "Não autenticado." };
+  }
+
+  const [camp] = await db
+    .select()
+    .from(campaigns)
+    .where(
+      and(eq(campaigns.id, input.campaignId), eq(campaigns.dmId, user.id))
+    )
+    .limit(1);
+
+  if (!camp) {
+    return {
+      success: false,
+      error: "Apenas o Mestre pode remover combatentes da mesa.",
+    };
+  }
+
+  await db
+    .delete(tableCombatants)
+    .where(
+      and(
+        eq(tableCombatants.id, input.combatantId),
+        eq(tableCombatants.campaignId, input.campaignId)
+      )
+    );
+
+  return { success: true };
+}
+
+export async function rollAllTableInitiativesAction(campaignId: string) {
+  const user = await resolveCurrentGuildUser();
+  if (!user) {
+    return { success: false, error: "Não autenticado." };
+  }
+
+  const [camp] = await db
+    .select()
+    .from(campaigns)
+    .where(and(eq(campaigns.id, campaignId), eq(campaigns.dmId, user.id)))
+    .limit(1);
+
+  if (!camp) {
+    return {
+      success: false,
+      error: "Apenas o Mestre pode rolar iniciativas da mesa.",
+    };
+  }
+
+  const allCombatants = await db
+    .select()
+    .from(tableCombatants)
+    .where(eq(tableCombatants.campaignId, campaignId));
+
+  await Promise.all(
+    allCombatants.map((c) => {
+      const rolled =
+        Math.floor(Math.random() * 20) + 1 + (c.initiativeModifier || 0);
+      return db
+        .update(tableCombatants)
+        .set({
+          initiative: rolled,
+          hasActedThisRound: false,
+          updatedAt: new Date(),
+        })
+        .where(eq(tableCombatants.id, c.id));
+    })
+  );
+
+  return { success: true };
+}
+
+export async function syncPartyCharactersToTableCombatantsAction(
+  campaignId: string
+) {
+  const user = await resolveCurrentGuildUser();
+  if (!user) {
+    return { success: false, error: "Não autenticado." };
+  }
+
+  const [camp] = await db
+    .select()
+    .from(campaigns)
+    .where(eq(campaigns.id, campaignId))
+    .limit(1);
+
+  if (!camp) {
+    return { success: false, error: "Mesa não encontrada." };
+  }
+
+  const membersWithChars = await db
+    .select({
+      characterId: campaignMembers.characterId,
+      username: users.username,
+      charName: characters.name,
+      dexterity: characters.dexterity,
+      currentHp: characters.currentHp,
+      maxHp: characters.maxHp,
+      armorClass: characters.armorClass,
+    })
+    .from(campaignMembers)
+    .innerJoin(users, eq(campaignMembers.userId, users.id))
+    .innerJoin(characters, eq(campaignMembers.characterId, characters.id))
+    .where(eq(campaignMembers.campaignId, campaignId));
+
+  const existing = await db
+    .select({ characterId: tableCombatants.characterId })
+    .from(tableCombatants)
+    .where(eq(tableCombatants.campaignId, campaignId));
+
+  const existingCharIds = new Set(
+    existing.map((e) => e.characterId).filter(Boolean)
+  );
+
+  for (const m of membersWithChars) {
+    if (!m.characterId || existingCharIds.has(m.characterId)) continue;
+    const dexMod = Math.floor((m.dexterity - 10) / 2);
+    const rolledInit = Math.floor(Math.random() * 20) + 1 + dexMod;
+    await db.insert(tableCombatants).values({
+      campaignId,
+      characterId: m.characterId,
+      type: "PLAYER",
+      faction: "ALLY",
+      name: `${m.charName} (@${m.username})`.slice(0, 120),
+      initiative: rolledInit,
+      initiativeModifier: dexMod,
+      currentHp: m.currentHp,
+      maxHp: m.maxHp,
+      armorClass: m.armorClass,
+      conditions: [],
+      statBlock: null,
+      isHiddenFromPlayers: false,
+    });
+  }
+
+  return { success: true };
+}
+

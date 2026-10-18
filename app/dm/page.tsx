@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, Suspense } from "react";
+import React, { useState, useMemo, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Swords,
@@ -15,15 +15,24 @@ import {
   Shield,
   Heart,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  X,
 } from "lucide-react";
 import { AppShell } from "@/components/navigation/app-shell";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
+import { SendToTableModal } from "@/components/dm/send-to-table-modal";
 import { DND_ADVENTURES } from "@/lib/dnd/data/adventures";
 import {
   DND_MONSTERS,
   DND_SPELLS,
+  MONSTER_CR_BRACKET_OPTIONS,
+  queryMonstersCatalog,
   type DndMonsterEntry,
+  type MonsterCrBracket,
 } from "@/lib/dnd/data/compendium";
+import { searchMonstersCompendiumAction } from "@/lib/actions/campaigns";
 import {
   calculateEncounterDifficulty35,
   formatModifier,
@@ -169,10 +178,26 @@ function DmScreenContent() {
     );
   }
 
+  // Toast flutuante e modal de envio para mesa
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [monsterToSend, setMonsterToSend] = useState<DndMonsterEntry | null>(
+    null
+  );
+
+  function showToast(msg: string) {
+    setToastMessage(msg);
+  }
+
+  useEffect(() => {
+    if (!toastMessage) return;
+    const t = setTimeout(() => setToastMessage(null), 4500);
+    return () => clearTimeout(t);
+  }, [toastMessage]);
+
   function addMonsterFromCompendiumToTracker(monster: DndMonsterEntry) {
     const rolledInit =
       Math.floor(Math.random() * 20) + 1 + monster.initiative;
-    const parsedAc = parseInt(monster.armorClass, 10) || 15;
+    const parsedAc = monster.acValue || parseInt(monster.armorClass, 10) || 15;
     setCombatants((prev) => [
       ...prev,
       {
@@ -188,7 +213,9 @@ function DmScreenContent() {
         conditions: [],
       },
     ]);
-    setActiveTab("tracker");
+    showToast(
+      `1x ${monster.name} adicionado ao rastreador local (Iniciativa ${rolledInit}).`
+    );
   }
 
   // ==========================================================================
@@ -212,15 +239,66 @@ function DmScreenContent() {
   }, [partySize, partyLevel, encounterGroups]);
 
   // ==========================================================================
-  // ESTADO 3 & 4: AVENTURAS (N1-N20) E COMPÊNDIO RÁPIDO
+  // ESTADO 3 & 4: AVENTURAS (N1-N20) E COMPÊNDIO RÁPIDO (PAGINAÇÃO + DEBOUNCE)
   // ==========================================================================
   const [adventureFilter, setAdventureFilter] = useState<
     "all" | "low" | "mid" | "high"
   >("all");
   const [compendiumSearch, setCompendiumSearch] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [crBracket, setCrBracket] = useState<MonsterCrBracket>("ALL");
+  const [monsterPage, setMonsterPage] = useState(1);
+  const [monsterPageSize] = useState(12);
   const [compendiumType, setCompendiumType] = useState<"monsters" | "spells">(
     "monsters"
   );
+
+  // Debounce de 300ms no campo de busca
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(compendiumSearch);
+      setMonsterPage(1);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [compendiumSearch]);
+
+  const [monsterPageResult, setMonsterPageResult] = useState(() =>
+    queryMonstersCatalog({
+      query: "",
+      crBracket: "ALL",
+      page: 1,
+      pageSize: 12,
+    })
+  );
+
+  // Pesquisa no servidor com debounce de 300ms por nome, tipo ou ND
+  useEffect(() => {
+    let active = true;
+    searchMonstersCompendiumAction({
+      query: debouncedQuery,
+      crBracket,
+      page: monsterPage,
+      pageSize: monsterPageSize,
+    })
+      .then((res) => {
+        if (active) setMonsterPageResult(res);
+      })
+      .catch(() => {
+        if (active) {
+          setMonsterPageResult(
+            queryMonstersCatalog({
+              query: debouncedQuery,
+              crBracket,
+              page: monsterPage,
+              pageSize: monsterPageSize,
+            })
+          );
+        }
+      });
+    return () => {
+      active = false;
+    };
+  }, [debouncedQuery, crBracket, monsterPage, monsterPageSize]);
 
   const filteredAdventures = useMemo(() => {
     return DND_ADVENTURES.filter((adv) => {
@@ -232,19 +310,8 @@ function DmScreenContent() {
     });
   }, [adventureFilter]);
 
-  const filteredMonsters = useMemo(() => {
-    const q = compendiumSearch.trim().toLowerCase();
-    if (!q) return DND_MONSTERS;
-    return DND_MONSTERS.filter(
-      (m) =>
-        m.name.toLowerCase().includes(q) ||
-        m.sizeAndType.toLowerCase().includes(q) ||
-        m.challengeRating.toLowerCase().includes(q)
-    );
-  }, [compendiumSearch]);
-
   const filteredSpells = useMemo(() => {
-    const q = compendiumSearch.trim().toLowerCase();
+    const q = debouncedQuery.trim().toLowerCase();
     if (!q) return DND_SPELLS;
     return DND_SPELLS.filter(
       (s) =>
@@ -252,11 +319,29 @@ function DmScreenContent() {
         s.school.toLowerCase().includes(q) ||
         s.summary.toLowerCase().includes(q)
     );
-  }, [compendiumSearch]);
+  }, [debouncedQuery]);
 
   return (
     <div className="space-y-5">
       <Breadcrumbs items={[{ label: "Escudo do mestre" }]} />
+
+      {/* Toast Flutuante de Feedback sem redirecionar */}
+      {toastMessage && (
+        <div className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 max-w-md rounded-xl border border-torch-bright bg-dungeon-abyss/95 px-4 py-3 shadow-torch-glow flex items-center gap-3">
+          <CheckCircle2 className="h-5 w-5 text-torch-bright shrink-0" />
+          <p className="text-xs sm:text-sm font-medium text-dungeon-parchment">
+            {toastMessage}
+          </p>
+          <button
+            type="button"
+            onClick={() => setToastMessage(null)}
+            className="text-slate-400 hover:text-white"
+            aria-label="Fechar aviso"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
       {/* Cabeçalho e Abas do Escudo do Mestre */}
       <div className="dungeon-panel p-4 sm:p-5">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -872,106 +957,225 @@ function DmScreenContent() {
       ==================================================================== */}
       {activeTab === "compendium" && (
         <div className="space-y-4">
-          <div className="dungeon-panel p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
-              <input
-                type="text"
-                value={compendiumSearch}
-                onChange={(e) => setCompendiumSearch(e.target.value)}
-                placeholder="Buscar monstro (ex: Hobgoblin, Dragão, Ogro) ou magia (ex: Mísseis, Cura)..."
-                className="carved-input pl-9"
-              />
+          <div className="dungeon-panel p-4 space-y-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-3.5 h-4 w-4 text-slate-500" />
+                <input
+                  type="text"
+                  value={compendiumSearch}
+                  onChange={(e) => setCompendiumSearch(e.target.value)}
+                  placeholder="Buscar monstro por nome (PT/EN), tipo ou ND (ex: Hobgoblin, Beholder, Dragão, ND 5)..."
+                  className="carved-input pl-9"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-1.5 rounded-lg border border-stone-800 bg-dungeon-abyss p-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setCompendiumType("monsters")}
+                  className={`min-h-[38px] rounded px-3 text-xs font-semibold ${
+                    compendiumType === "monsters"
+                      ? "bg-torch text-dungeon-abyss"
+                      : "text-slate-400"
+                  }`}
+                >
+                  Monstros ({monsterPageResult.totalItems})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCompendiumType("spells")}
+                  className={`min-h-[38px] rounded px-3 text-xs font-semibold ${
+                    compendiumType === "spells"
+                      ? "bg-arcane text-dungeon-abyss"
+                      : "text-slate-400"
+                  }`}
+                >
+                  Magias ({filteredSpells.length})
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-1.5 rounded-lg border border-stone-800 bg-dungeon-abyss p-1 shrink-0">
-              <button
-                type="button"
-                onClick={() => setCompendiumType("monsters")}
-                className={`min-h-[38px] rounded px-3 text-xs font-semibold ${
-                  compendiumType === "monsters"
-                    ? "bg-torch text-dungeon-abyss"
-                    : "text-slate-400"
-                }`}
-              >
-                Monstros ({filteredMonsters.length})
-              </button>
-              <button
-                type="button"
-                onClick={() => setCompendiumType("spells")}
-                className={`min-h-[38px] rounded px-3 text-xs font-semibold ${
-                  compendiumType === "spells"
-                    ? "bg-arcane text-dungeon-abyss"
-                    : "text-slate-400"
-                }`}
-              >
-                Magias ({filteredSpells.length})
-              </button>
-            </div>
+            {/* Filtros Rápidos por Faixa de Nível de Desafio (ND) */}
+            {compendiumType === "monsters" && (
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-stone-800/80">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] font-semibold text-slate-400 mr-1">
+                    Faixa de ND:
+                  </span>
+                  {MONSTER_CR_BRACKET_OPTIONS.map((opt) => {
+                    const active = crBracket === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => {
+                          setCrBracket(opt.id);
+                          setMonsterPage(1);
+                        }}
+                        className={`rounded-lg border px-2.5 py-1 text-xs font-semibold transition-colors ${
+                          active
+                            ? "border-torch-bright bg-torch/20 text-torch-glow"
+                            : "border-stone-800 bg-dungeon-abyss text-slate-400 hover:text-white"
+                        }`}
+                      >
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <span className="text-[11px] font-mono text-slate-400">
+                  Página {monsterPageResult.currentPage} de{" "}
+                  {monsterPageResult.totalPages} ({monsterPageResult.totalItems}{" "}
+                  criaturas)
+                </span>
+              </div>
+            )}
           </div>
 
           {compendiumType === "monsters" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {filteredMonsters.map((m) => (
-                <div
-                  key={m.id}
-                  className="dungeon-panel p-4 flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="font-display text-base font-bold text-dungeon-parchment">
-                          {m.name}
-                        </h3>
-                        <p className="text-xs text-slate-400">
-                          {m.sizeAndType} • {m.sourcePage}
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {monsterPageResult.items.map((m) => (
+                  <div
+                    key={m.id}
+                    className="dungeon-panel p-4 flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h3 className="font-display text-base font-bold text-dungeon-parchment">
+                            {m.name}
+                          </h3>
+                          <p className="text-xs text-slate-400">
+                            {m.sizeAndType} • {m.sourcePage}
+                          </p>
+                        </div>
+                        <span className="rounded border border-crimson/40 bg-crimson-blood/40 px-2 py-0.5 font-mono text-xs font-bold text-crimson-soft shrink-0">
+                          ND {m.challengeRating}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 rounded-lg border border-stone-800 bg-dungeon-abyss p-2.5 space-y-1 text-xs">
+                        <p>
+                          <strong>DV / PV:</strong> {m.hitDice} ({m.hp} PV) |{" "}
+                          <strong>Inic:</strong> {formatModifier(m.initiative)}{" "}
+                          | <strong>Desl:</strong> {m.speed}
+                        </p>
+                        <p>
+                          <strong>CA:</strong> {m.armorClass}
+                        </p>
+                        <p>
+                          <strong>BBA / agarrar:</strong> {m.baseAttackGrapple}
+                        </p>
+                        <p>
+                          <strong>Ataque:</strong> {m.attack}
+                        </p>
+                        {m.specialAttacks && m.specialAttacks !== "—" && (
+                          <p>
+                            <strong>Ataques especiais:</strong>{" "}
+                            {m.specialAttacks}
+                          </p>
+                        )}
+                        <p>
+                          <strong>Qualidades especiais:</strong>{" "}
+                          {m.specialQualities}
+                        </p>
+                        <p className="font-mono text-[11px] text-slate-400">
+                          Fort {formatModifier(m.saves.fort)}, Ref{" "}
+                          {formatModifier(m.saves.ref)}, Von{" "}
+                          {formatModifier(m.saves.will)} | For {m.abilities.str}
+                          , Des {m.abilities.dex}, Con {m.abilities.con}, Int{" "}
+                          {m.abilities.int}, Sab {m.abilities.wis}, Car{" "}
+                          {m.abilities.cha}
                         </p>
                       </div>
-                      <span className="rounded border border-crimson/40 bg-crimson-blood/40 px-2 py-0.5 font-mono text-xs font-bold text-crimson-soft shrink-0">
-                        ND {m.challengeRating}
-                      </span>
                     </div>
 
-                    <div className="mt-3 rounded-lg border border-stone-800 bg-dungeon-abyss p-2.5 space-y-1 text-xs">
-                      <p>
-                        <strong>DV / PV:</strong> {m.hitDice} ({m.hp} PV) |{" "}
-                        <strong>Inic:</strong> {formatModifier(m.initiative)} |{" "}
-                        <strong>Desl:</strong> {m.speed}
-                      </p>
-                      <p>
-                        <strong>CA:</strong> {m.armorClass}
-                      </p>
-                      <p>
-                        <strong>BBA / agarrar:</strong> {m.baseAttackGrapple}
-                      </p>
-                      <p>
-                        <strong>Ataque:</strong> {m.attack}
-                      </p>
-                      <p>
-                        <strong>Qualidades especiais:</strong>{" "}
-                        {m.specialQualities}
-                      </p>
-                      <p className="font-mono text-[11px] text-slate-400">
-                        Fort {formatModifier(m.saves.fort)}, Ref{" "}
-                        {formatModifier(m.saves.ref)}, Von{" "}
-                        {formatModifier(m.saves.will)} | For {m.abilities.str},
-                        Des {m.abilities.dex}, Con {m.abilities.con}, Int{" "}
-                        {m.abilities.int}, Sab {m.abilities.wis}, Car{" "}
-                        {m.abilities.cha}
-                      </p>
+                    {/* Rodapé do Card com 2 Botões Equilibrados: + Rastreador local & ⚔️ Enviar para mesa */}
+                    <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => addMonsterFromCompendiumToTracker(m)}
+                        className="min-h-[40px] flex items-center justify-center gap-1.5 rounded-lg border border-stone-700 bg-dungeon-abyss px-3 py-2 text-xs font-semibold text-slate-200 hover:border-torch/50 hover:text-white transition-colors"
+                      >
+                        <Plus className="h-3.5 w-3.5 text-torch-glow" />
+                        <span>Rastreador local</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setMonsterToSend(m)}
+                        className="min-h-[40px] flex items-center justify-center gap-1.5 rounded-lg border border-amber-500/60 bg-amber-500/20 px-3 py-2 text-xs font-bold text-amber-400 hover:bg-amber-500/30 shadow-torch-glow transition-colors"
+                      >
+                        <Swords className="h-3.5 w-3.5" />
+                        <span>Enviar para mesa</span>
+                      </button>
                     </div>
                   </div>
+                ))}
+              </div>
 
-                  <button
-                    type="button"
-                    onClick={() => addMonsterFromCompendiumToTracker(m)}
-                    className="mt-3 min-h-[40px] w-full rounded-lg border border-torch/40 bg-torch/15 text-xs font-semibold text-torch-glow hover:bg-torch/25"
-                  >
-                    + Enviar para rastreador de iniciativa
-                  </button>
+              {/* Controles de Paginação de Alta Performance */}
+              {monsterPageResult.totalPages > 1 && (
+                <div className="dungeon-panel p-3 flex flex-wrap items-center justify-between gap-2">
+                  <span className="text-xs text-slate-400">
+                    Exibindo {monsterPageResult.items.length} de{" "}
+                    {monsterPageResult.totalItems} monstros canônicos
+                  </span>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={monsterPageResult.currentPage <= 1}
+                      onClick={() =>
+                        setMonsterPage((p) => Math.max(1, p - 1))
+                      }
+                      className="inline-flex items-center gap-1 rounded-lg border border-stone-700 bg-dungeon-abyss px-2.5 py-1.5 text-xs font-semibold text-slate-200 disabled:opacity-40"
+                    >
+                      <ChevronLeft className="h-3.5 w-3.5" />
+                      <span>Anterior</span>
+                    </button>
+
+                    {Array.from(
+                      { length: monsterPageResult.totalPages },
+                      (_, i) => i + 1
+                    ).map((pg) => (
+                      <button
+                        key={pg}
+                        type="button"
+                        onClick={() => setMonsterPage(pg)}
+                        className={`h-8 w-8 rounded-lg border font-mono text-xs font-bold ${
+                          pg === monsterPageResult.currentPage
+                            ? "border-torch-bright bg-torch text-dungeon-abyss"
+                            : "border-stone-800 bg-dungeon-abyss text-slate-300 hover:border-torch/40"
+                        }`}
+                      >
+                        {pg}
+                      </button>
+                    ))}
+
+                    <button
+                      type="button"
+                      disabled={
+                        monsterPageResult.currentPage >=
+                        monsterPageResult.totalPages
+                      }
+                      onClick={() =>
+                        setMonsterPage((p) =>
+                          Math.min(monsterPageResult.totalPages, p + 1)
+                        )
+                      }
+                      className="inline-flex items-center gap-1 rounded-lg border border-stone-700 bg-dungeon-abyss px-2.5 py-1.5 text-xs font-semibold text-slate-200 disabled:opacity-40"
+                    >
+                      <span>Próxima</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {filteredSpells.map((sp) => (
@@ -1013,6 +1217,13 @@ function DmScreenContent() {
           )}
         </div>
       )}
+
+      {/* Modal de Envio Direto para Mesa Ativa do Mestre */}
+      <SendToTableModal
+        monster={monsterToSend}
+        onClose={() => setMonsterToSend(null)}
+        onSuccessToast={(msg) => showToast(msg)}
+      />
     </div>
   );
 }

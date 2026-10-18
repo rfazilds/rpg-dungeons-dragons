@@ -28,12 +28,17 @@ import {
 import { AppShell } from "@/components/navigation/app-shell";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { GuildAvatar } from "@/components/account/guild-avatar";
+import { SendToTableModal } from "@/components/dm/send-to-table-modal";
 import {
   getCampaignRoomDataAction,
   sendCampaignMessageAction,
   updateCampaignCharacterHpAction,
   joinCampaignWithCharacterAction,
   leaveCampaignAction,
+  updateTableCombatantHpAction,
+  removeTableCombatantAction,
+  rollAllTableInitiativesAction,
+  syncPartyCharactersToTableCombatantsAction,
 } from "@/lib/actions/campaigns";
 import {
   calculateAbilityModifier,
@@ -44,7 +49,11 @@ import {
 import { getRaceById } from "@/lib/dnd/data/races";
 import { getClassById } from "@/lib/dnd/data/classes";
 import { DND_SKILLS } from "@/lib/dnd/data/skills";
-import { DND_MONSTERS, DND_SPELLS } from "@/lib/dnd/data/compendium";
+import {
+  DND_MONSTERS,
+  DND_SPELLS,
+  type DndMonsterEntry,
+} from "@/lib/dnd/data/compendium";
 import { DND_ADVENTURES } from "@/lib/dnd/data/adventures";
 import {
   loadStoredCharacters,
@@ -54,7 +63,28 @@ import type {
   CharacterAttackEntry,
   CharacterSkillEntry,
   CombatantEntry,
+  MonsterStatBlockJson,
 } from "@/lib/db/schema";
+
+interface TableCombatantItem {
+  id: string;
+  campaignId: string;
+  characterId: string | null;
+  type: "PLAYER" | "MONSTER" | "NPC";
+  faction: "ALLY" | "ENEMY" | "NEUTRAL";
+  name: string;
+  avatarUrl: string | null;
+  initiative: number;
+  initiativeModifier: number;
+  hasActedThisRound: boolean;
+  currentHp: number;
+  maxHp: number;
+  tempHp: number;
+  armorClass: number;
+  conditions: string[];
+  statBlock: MonsterStatBlockJson | null;
+  isHiddenFromPlayers: boolean;
+}
 
 interface RoomCharacterData {
   id: string;
@@ -178,14 +208,25 @@ export default function GameTableRoomPage() {
     "party_vision" | "initiative" | "compendium" | "adventures"
   >("party_vision");
 
-  // Estado do Rastreador de Iniciativa Integrado do Mestre
+  // Estado do Rastreador de Iniciativa Integrado do Mestre (Persistido em table_combatants)
   const [combatants, setCombatants] = useState<CombatantEntry[]>([]);
+  const [dbCombatants, setDbCombatants] = useState<TableCombatantItem[]>([]);
   const [round, setRound] = useState(1);
   const [turnIdx, setTurnIdx] = useState(0);
   const [compendiumQuery, setCompendiumQuery] = useState("");
   const [compendiumMode, setCompendiumMode] = useState<"monsters" | "spells">(
     "monsters"
   );
+  const [monsterToSend, setMonsterToSend] = useState<DndMonsterEntry | null>(
+    null
+  );
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!toastMessage) return;
+    const t = setTimeout(() => setToastMessage(null), 4500);
+    return () => clearTimeout(t);
+  }, [toastMessage]);
 
   // Estado do Chat e Log de Rolagens
   const [chatText, setChatText] = useState("");
@@ -210,29 +251,54 @@ export default function GameTableRoomPage() {
         setCurrentUser(res.currentUser);
         setMembers(res.members || []);
         setMessages(res.messages || []);
+        setDbCombatants(res.tableCombatants || []);
 
-        // Inicializa combatentes da mesa com os personagens conectados caso esteja vazio
-        setCombatants((prev) => {
-          if (prev.length > 0) return prev;
-          const partyCombatants: CombatantEntry[] = (res.members || [])
-            .filter((m) => m.character)
-            .map((m) => {
-              const c = m.character!;
-              const dexMod = calculateAbilityModifier(c.dexterity);
-              return {
-                id: `pj-${c.id}`,
-                name: `${c.name} (@${m.username})`,
-                type: "player",
-                initiative: 10 + dexMod,
-                initiativeMod: dexMod,
-                armorClass: c.armorClass,
-                currentHp: c.currentHp,
-                maxHp: c.maxHp,
-                conditions: [],
-              };
-            });
-          return partyCombatants;
-        });
+        // Sincroniza a lista visual de combatentes com table_combatants do banco + PJs da sala
+        const persistedItems: CombatantEntry[] = (
+          res.tableCombatants || []
+        ).map((tc) => ({
+          id: tc.id,
+          name: tc.name,
+          type:
+            tc.type === "PLAYER"
+              ? "player"
+              : tc.type === "NPC"
+              ? "npc"
+              : "monster",
+          initiative: tc.initiative,
+          initiativeMod: tc.initiativeModifier,
+          armorClass: tc.armorClass,
+          currentHp: tc.currentHp,
+          maxHp: tc.maxHp,
+          challengeRating: tc.statBlock?.challengeRating,
+          conditions: tc.conditions || [],
+        }));
+
+        const persistedCharIds = new Set(
+          (res.tableCombatants || [])
+            .map((tc) => tc.characterId)
+            .filter(Boolean)
+        );
+
+        const unpersistedParty: CombatantEntry[] = (res.members || [])
+          .filter((m) => m.character && !persistedCharIds.has(m.character.id))
+          .map((m) => {
+            const c = m.character!;
+            const dexMod = calculateAbilityModifier(c.dexterity);
+            return {
+              id: `pj-${c.id}`,
+              name: `${c.name} (@${m.username})`,
+              type: "player",
+              initiative: 10 + dexMod,
+              initiativeMod: dexMod,
+              armorClass: c.armorClass,
+              currentHp: c.currentHp,
+              maxHp: c.maxHp,
+              conditions: [],
+            };
+          });
+
+        setCombatants([...persistedItems, ...unpersistedParty]);
       } catch {
         if (!silent) setError("Erro ao carregar dados da mesa.");
       } finally {
@@ -915,26 +981,44 @@ export default function GameTableRoomPage() {
                   </div>
                 )}
 
-                {/* ABA MESTRE 2: RASTREADOR DE INICIATIVA RÁPIDA */}
+                {/* ABA MESTRE 2: RASTREADOR DE INICIATIVA RÁPIDA (PERSISTIDO EM TABLE_COMBATANTS) */}
                 {dmTab === "initiative" && (
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
                       <span className="text-xs font-mono text-torch-glow">
-                        Rodada {round}
+                        Rodada {round} • {sortedCombatants.length} em combate
                       </span>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <button
                           type="button"
-                          onClick={() => {
-                            setCombatants((prev) =>
-                              prev.map((c) => ({
-                                ...c,
-                                initiative:
-                                  Math.floor(Math.random() * 20) +
-                                  1 +
-                                  (c.initiativeMod || 0),
-                              }))
+                          onClick={async () => {
+                            await syncPartyCharactersToTableCombatantsAction(
+                              campaign.id
                             );
+                            await fetchRoomData(true);
+                          }}
+                          className="rounded-lg border border-stone-700 bg-dungeon-abyss px-2 py-1 text-[11px] font-semibold text-slate-300 hover:border-torch/50"
+                          title="Sincronizar todos os heróis da mesa no combate"
+                        >
+                          Sincronizar heróis
+                        </button>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (dbCombatants.length > 0) {
+                              await rollAllTableInitiativesAction(campaign.id);
+                              await fetchRoomData(true);
+                            } else {
+                              setCombatants((prev) =>
+                                prev.map((c) => ({
+                                  ...c,
+                                  initiative:
+                                    Math.floor(Math.random() * 20) +
+                                    1 +
+                                    (c.initiativeMod || 0),
+                                }))
+                              );
+                            }
                             setTurnIdx(0);
                             setRound(1);
                           }}
@@ -964,6 +1048,7 @@ export default function GameTableRoomPage() {
                     <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                       {sortedCombatants.map((c, idx) => {
                         const isTurn = idx === turnIdx;
+                        const isPersisted = !c.id.startsWith("pj-") && !c.id.startsWith("mon-");
                         return (
                           <div
                             key={c.id}
@@ -978,9 +1063,16 @@ export default function GameTableRoomPage() {
                                 {c.initiative}
                               </span>
                               <div>
-                                <p className="font-semibold text-dungeon-parchment">
-                                  {c.name}
-                                </p>
+                                <div className="flex items-center gap-1.5">
+                                  <p className="font-semibold text-dungeon-parchment">
+                                    {c.name}
+                                  </p>
+                                  {c.challengeRating && (
+                                    <span className="rounded bg-crimson-blood/40 px-1.5 py-0.5 font-mono text-[9px] text-crimson-soft border border-crimson/30">
+                                      ND {c.challengeRating}
+                                    </span>
+                                  )}
+                                </div>
                                 <p className="font-mono text-[10px] text-slate-400">
                                   CA {c.armorClass} • PV {c.currentHp}/{c.maxHp}
                                 </p>
@@ -990,32 +1082,79 @@ export default function GameTableRoomPage() {
                             <div className="flex items-center gap-1">
                               <button
                                 type="button"
-                                onClick={() =>
-                                  setCombatants((prev) =>
-                                    prev.map((item) =>
-                                      item.id === c.id
-                                        ? {
-                                            ...item,
-                                            currentHp: Math.max(
-                                              -10,
-                                              item.currentHp - 2
-                                            ),
-                                          }
-                                        : item
-                                    )
-                                  )
-                                }
+                                onClick={async () => {
+                                  if (isPersisted) {
+                                    await updateTableCombatantHpAction({
+                                      campaignId: campaign.id,
+                                      combatantId: c.id,
+                                      delta: -2,
+                                    });
+                                    await fetchRoomData(true);
+                                  } else {
+                                    setCombatants((prev) =>
+                                      prev.map((item) =>
+                                        item.id === c.id
+                                          ? {
+                                              ...item,
+                                              currentHp: Math.max(
+                                                -10,
+                                                item.currentHp - 2
+                                              ),
+                                            }
+                                          : item
+                                      )
+                                    );
+                                  }
+                                }}
                                 className="h-6 px-1.5 rounded border border-crimson/40 bg-crimson-blood/30 font-mono text-[10px] text-crimson-soft"
                               >
                                 -2
                               </button>
                               <button
                                 type="button"
-                                onClick={() =>
-                                  setCombatants((prev) =>
-                                    prev.filter((item) => item.id !== c.id)
-                                  )
-                                }
+                                onClick={async () => {
+                                  if (isPersisted) {
+                                    await updateTableCombatantHpAction({
+                                      campaignId: campaign.id,
+                                      combatantId: c.id,
+                                      delta: 2,
+                                    });
+                                    await fetchRoomData(true);
+                                  } else {
+                                    setCombatants((prev) =>
+                                      prev.map((item) =>
+                                        item.id === c.id
+                                          ? {
+                                              ...item,
+                                              currentHp: Math.min(
+                                                item.maxHp,
+                                                item.currentHp + 2
+                                              ),
+                                            }
+                                          : item
+                                      )
+                                    );
+                                  }
+                                }}
+                                className="h-6 px-1.5 rounded border border-vital/40 bg-vital-deep/30 font-mono text-[10px] text-vital"
+                              >
+                                +2
+                              </button>
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  if (isPersisted) {
+                                    await removeTableCombatantAction({
+                                      campaignId: campaign.id,
+                                      combatantId: c.id,
+                                    });
+                                    await fetchRoomData(true);
+                                  } else {
+                                    setCombatants((prev) =>
+                                      prev.filter((item) => item.id !== c.id)
+                                    );
+                                  }
+                                }}
                                 className="h-6 w-6 flex items-center justify-center rounded border border-stone-800 text-slate-500 hover:text-crimson-soft"
                               >
                                 <Trash2 className="h-3 w-3" />
@@ -1074,35 +1213,14 @@ export default function GameTableRoomPage() {
                               <p className="text-[11px] text-slate-400">
                                 CA {m.armorClass} | PV {m.hp} | Atq: {m.attack}
                               </p>
-                              <div className="flex items-center gap-1.5 pt-1">
+                              <div className="flex flex-wrap items-center gap-1.5 pt-1">
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    const init =
-                                      Math.floor(Math.random() * 20) +
-                                      1 +
-                                      m.initiative;
-                                    setCombatants((prev) => [
-                                      ...prev,
-                                      {
-                                        id: `mon-${Date.now()}`,
-                                        name: m.name,
-                                        type: "monster",
-                                        initiative: init,
-                                        initiativeMod: m.initiative,
-                                        armorClass:
-                                          parseInt(m.armorClass, 10) || 15,
-                                        currentHp: m.hp,
-                                        maxHp: m.hp,
-                                        challengeRating: m.challengeRating,
-                                        conditions: [],
-                                      },
-                                    ]);
-                                    setDmTab("initiative");
-                                  }}
-                                  className="rounded border border-torch/40 bg-torch/15 px-2 py-1 text-[11px] font-semibold text-torch-glow"
+                                  onClick={() => setMonsterToSend(m)}
+                                  className="inline-flex items-center gap-1 rounded border border-amber-500/60 bg-amber-500/20 px-2.5 py-1 text-[11px] font-bold text-amber-400 hover:bg-amber-500/30"
                                 >
-                                  + Iniciativa
+                                  <Swords className="h-3 w-3" />
+                                  <span>Enviar para mesa (1-10x)</span>
                                 </button>
                                 <button
                                   type="button"
@@ -1571,6 +1689,35 @@ export default function GameTableRoomPage() {
           </aside>
         </div>
       </div>
+
+      {/* Toast Flutuante de Envio de Criaturas */}
+      {toastMessage && (
+        <div className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 max-w-md rounded-xl border border-torch-bright bg-dungeon-abyss/95 px-4 py-3 shadow-torch-glow flex items-center gap-3">
+          <CheckCircle2 className="h-5 w-5 text-torch-bright shrink-0" />
+          <p className="text-xs sm:text-sm font-medium text-dungeon-parchment">
+            {toastMessage}
+          </p>
+          <button
+            type="button"
+            onClick={() => setToastMessage(null)}
+            className="text-slate-400 hover:text-white"
+            aria-label="Fechar aviso"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Modal de Envio Direto de Monstros para a Mesa */}
+      <SendToTableModal
+        monster={monsterToSend}
+        defaultCampaignId={campaign.id}
+        onClose={() => setMonsterToSend(null)}
+        onSuccessToast={(msg) => {
+          setToastMessage(msg);
+          fetchRoomData(true);
+        }}
+      />
 
       {/* Modal Rápido para Vincular ou Trocar Personagem na Mesa */}
       {charPickerOpen && (

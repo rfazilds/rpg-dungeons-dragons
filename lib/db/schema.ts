@@ -38,9 +38,45 @@ export const campaignMessageTypeEnum = pgEnum("campaign_message_type", [
   "SYSTEM",
 ]);
 
+export const tableCombatantTypeEnum = pgEnum("table_combatant_type", [
+  "PLAYER",
+  "MONSTER",
+  "NPC",
+]);
+
+export const tableCombatantFactionEnum = pgEnum("table_combatant_faction", [
+  "ALLY",
+  "ENEMY",
+  "NEUTRAL",
+]);
+
 // ============================================================================
-// TIPOS AUXILIARES JSONB (FICHA CANÔNICA D&D 3.5)
+// TIPOS AUXILIARES JSONB (FICHA CANÔNICA D&D 3.5 & STAT BLOCK DE MONSTROS)
 // ============================================================================
+
+export interface MonsterStatBlockJson {
+  challengeRating: string;
+  sizeAndType?: string;
+  hitDice?: string;
+  speed: string;
+  touchArmorClass?: number;
+  flatFootedArmorClass?: number;
+  armorClassText?: string;
+  baseAttackGrapple?: string;
+  attacks: string;
+  specialAttacks?: string;
+  specialQualities: string;
+  saves?: { fort: number; ref: number; will: number };
+  abilities?: {
+    str: number;
+    dex: number;
+    con: number;
+    int: number;
+    wis: number;
+    cha: number;
+  };
+  sourcePage?: string;
+}
 
 export interface CharacterSkillEntry {
   ranks: number;         // Graduações investidas na perícia
@@ -443,6 +479,52 @@ export const campaignMessages = pgTable(
 );
 
 // ============================================================================
+// 7. TABELA DE COMBATENTES DA MESA (FASE 4 — INTEGRAÇÃO COMPÊNDIO ↔ MESAS)
+// ============================================================================
+
+export const tableCombatants = pgTable(
+  "table_combatants",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    campaignId: uuid("campaign_id")
+      .notNull()
+      .references(() => campaigns.id, { onDelete: "cascade" }),
+    characterId: uuid("character_id").references(() => characters.id, {
+      onDelete: "set null",
+    }),
+    type: tableCombatantTypeEnum("type").default("MONSTER").notNull(),
+    faction: tableCombatantFactionEnum("faction").default("ENEMY").notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    avatarUrl: text("avatar_url"),
+    initiative: integer("initiative").default(0).notNull(),
+    initiativeModifier: integer("initiative_modifier").default(0).notNull(),
+    hasActedThisRound: boolean("has_acted_this_round").default(false).notNull(),
+    currentHp: integer("current_hp").notNull(),
+    maxHp: integer("max_hp").notNull(),
+    tempHp: integer("temp_hp").default(0).notNull(),
+    armorClass: integer("armor_class").notNull(),
+    conditions: jsonb("conditions").$type<string[]>().default([]).notNull(),
+    statBlock: jsonb("stat_block").$type<MonsterStatBlockJson | null>(),
+    isHiddenFromPlayers: boolean("is_hidden_from_players")
+      .default(false)
+      .notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true, mode: "date" })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("table_combatants_campaign_id_idx").on(table.campaignId),
+    index("table_combatants_campaign_initiative_idx").on(
+      table.campaignId,
+      table.initiative
+    ),
+  ]
+);
+
+// ============================================================================
 // RELAÇÕES DRIZZLE ORM
 // ============================================================================
 
@@ -490,6 +572,7 @@ export const charactersRelations = relations(characters, ({ one, many }) => ({
     references: [users.id],
   }),
   campaignMemberships: many(campaignMembers),
+  tableCombatants: many(tableCombatants),
 }));
 
 export const combatEncountersRelations = relations(
@@ -509,6 +592,7 @@ export const campaignsRelations = relations(campaigns, ({ one, many }) => ({
   }),
   members: many(campaignMembers),
   messages: many(campaignMessages),
+  combatants: many(tableCombatants),
 }));
 
 export const campaignMembersRelations = relations(
@@ -542,3 +626,18 @@ export const campaignMessagesRelations = relations(
     }),
   })
 );
+
+export const tableCombatantsRelations = relations(
+  tableCombatants,
+  ({ one }) => ({
+    campaign: one(campaigns, {
+      fields: [tableCombatants.campaignId],
+      references: [campaigns.id],
+    }),
+    character: one(characters, {
+      fields: [tableCombatants.characterId],
+      references: [characters.id],
+    }),
+  })
+);
+

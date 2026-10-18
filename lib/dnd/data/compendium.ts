@@ -1,26 +1,25 @@
 /**
  * Compêndio Rápido Canônico D&D 3.5 (Livro dos Monstros 3.5 & Livro do Jogador 3.5)
- * Estruturado estaticamente para busca instantânea em 0ms mesmo em redes móveis 3G/4G lentas.
+ * Estruturado de forma modular para busca e paginação de alta performance.
  */
 
-export interface DndMonsterEntry {
-  id: string;
-  name: string;
-  sizeAndType: string;
-  challengeRating: string; // ND
-  hitDice: string;
-  hp: number;
-  initiative: number;
-  speed: string;
-  armorClass: string;
-  baseAttackGrapple: string;
-  attack: string;
-  specialAttacks: string;
-  specialQualities: string;
-  saves: { fort: number; ref: number; will: number };
-  abilities: { str: number; dex: number; con: number; int: number; wis: number; cha: number };
-  sourcePage: string;
-}
+import {
+  ALL_DND35_MONSTERS,
+  MONSTER_CR_BRACKET_OPTIONS,
+  queryMonstersCatalog,
+  matchesCrBracket,
+  type DndMonsterEntry,
+  type MonsterCrBracket,
+} from "./monsters";
+
+export {
+  ALL_DND35_MONSTERS as DND_MONSTERS,
+  MONSTER_CR_BRACKET_OPTIONS,
+  queryMonstersCatalog,
+  matchesCrBracket,
+  type DndMonsterEntry,
+  type MonsterCrBracket,
+};
 
 export interface DndSpellEntry {
   id: string;
@@ -36,207 +35,6 @@ export interface DndSpellEntry {
   spellResistance: string;
   summary: string;
 }
-
-export const DND_MONSTERS: DndMonsterEntry[] = [
-  {
-    id: "rato-atroz",
-    name: "Rato Atroz (Dire Rat)",
-    sizeAndType: "Animal Pequeno",
-    challengeRating: "1/3",
-    hitDice: "1d8+1",
-    hp: 5,
-    initiative: 3,
-    speed: "12m, escalar 6m",
-    armorClass: "15 (+1 tamanho, +3 Des, +1 natural), toque 14, surpresa 12",
-    baseAttackGrapple: "+0 / -4",
-    attack: "Mordida +4 corpo a corpo (1d4 + Febre do Esgoto)",
-    specialAttacks: "Doença (Febre do Esgoto, Fort CD 11)",
-    specialQualities: "Visão na penumbra, Faro",
-    saves: { fort: 3, ref: 5, will: 3 },
-    abilities: { str: 10, dex: 17, con: 12, int: 1, wis: 12, cha: 4 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 16",
-  },
-  {
-    id: "hobgoblin-assaltante",
-    name: "Assaltante Hobgoblin (Guerreiro 1)",
-    sizeAndType: "Humanóide Médio (Goblinoide)",
-    challengeRating: "1/2",
-    hitDice: "1d8+2",
-    hp: 6,
-    initiative: 1,
-    speed: "9m",
-    armorClass: "15 (+1 Des, +3 couro batido, +1 escudo pequeno), toque 11, surpresa 14",
-    baseAttackGrapple: "+1 / +2",
-    attack: "Espada curta +2 corpo a corpo (1d6+1/19-20) ou Azagaia +2 distância (1d6+1)",
-    specialAttacks: "—",
-    specialQualities: "Visão no escuro 18m",
-    saves: { fort: 4, ref: 1, will: -1 },
-    abilities: { str: 13, dex: 13, con: 14, int: 10, wis: 9, cha: 8 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 151 / Aventura N1",
-  },
-  {
-    id: "orc-guerreiro",
-    name: "Orc (Guerreiro 1)",
-    sizeAndType: "Humanóide Médio (Orc)",
-    challengeRating: "1/2",
-    hitDice: "1d8+1",
-    hp: 5,
-    initiative: 0,
-    speed: "9m",
-    armorClass: "13 (+3 couro batido), toque 10, surpresa 13",
-    baseAttackGrapple: "+1 / +4",
-    attack: "cimitarra grande +4 corpo a corpo (2d4+4/18-20) ou Azagaia +1 distância (1d6+3)",
-    specialAttacks: "—",
-    specialQualities: "Visão no escuro 18m, Sensibilidade à Luz",
-    saves: { fort: 3, ref: 0, will: -2 },
-    abilities: { str: 17, dex: 11, con: 12, int: 8, wis: 7, cha: 6 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 204",
-  },
-  {
-    id: "esqueleto-humano",
-    name: "Esqueleto Guerreiro Humano",
-    sizeAndType: "Morto-Vivo Médio",
-    challengeRating: "1/3",
-    hitDice: "1d12",
-    hp: 6,
-    initiative: 5,
-    speed: "9m",
-    armorClass: "15 (+1 Des, +2 escudo pesado, +2 armadura natural), toque 11, surpresa 14",
-    baseAttackGrapple: "+0 / +1",
-    attack: "Cimitarra +1 corpo a corpo (1d6+1/18-20) ou Garra +1 (1d4+1)",
-    specialAttacks: "—",
-    specialQualities: "RD 5/contusão, Visão no escuro 18m, Imunidade ao frio, Traços de Morto-Vivo",
-    saves: { fort: 0, ref: 1, will: 2 },
-    abilities: { str: 13, dex: 13, con: 10, int: 0, wis: 10, cha: 1 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 108",
-  },
-  {
-    id: "aranha-monstruosa-media",
-    name: "Aranha Monstruosa Média",
-    sizeAndType: "Verme Médio",
-    challengeRating: "1",
-    hitDice: "2d8+2",
-    hp: 11,
-    initiative: 3,
-    speed: "9m, escalar 6m",
-    armorClass: "14 (+3 Des, +1 natural), toque 13, surpresa 11",
-    baseAttackGrapple: "+1 / +1",
-    attack: "Mordida +4 corpo a corpo (1d6 + veneno)",
-    specialAttacks: "Veneno (Fort CD 12, 1d4 For inicial/secundário), Teia (+4 toque distância, Arte da Fuga CD 12)",
-    specialQualities: "Visão no escuro 18m, Sentido Sísmico 18m, Imune a efeitos mentais",
-    saves: { fort: 4, ref: 3, will: 0 },
-    abilities: { str: 11, dex: 17, con: 12, int: 0, wis: 10, cha: 2 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 285",
-  },
-  {
-    id: "cavaleiro-sombrio-bugbear-zumbi",
-    name: "O Cavaleiro Sombrio (Bugbear Zumbi)",
-    sizeAndType: "Morto-Vivo Médio",
-    challengeRating: "2",
-    hitDice: "6d12+3",
-    hp: 42,
-    initiative: 0,
-    speed: "9m (não pode correr)",
-    armorClass: "16 (+1 escudo, +5 natural/armadura), toque 10, surpresa 16",
-    baseAttackGrapple: "+3 / +6",
-    attack: "Maça-estrela +6 corpo a corpo (1d8+3) ou Azagaia +3 distância (1d6+3)",
-    specialAttacks: "Arma Obra-Prima secundária",
-    specialQualities: "Ações Únicas (apenas 1 ação padrão ou de movimento por rodada), RD 5/cortante, Visão no escuro 18m, Traços de Morto-Vivo",
-    saves: { fort: 2, ref: 2, will: 5 },
-    abilities: { str: 17, dex: 10, con: 10, int: 0, wis: 10, cha: 1 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 267 / Aventura N1",
-  },
-  {
-    id: "bugbear",
-    name: "Bugbear",
-    sizeAndType: "Humanóide Médio (Goblinoide)",
-    challengeRating: "2",
-    hitDice: "3d8+3",
-    hp: 16,
-    initiative: 1,
-    speed: "9m",
-    armorClass: "17 (+1 Des, +3 natural, +2 armadura de couro, +1 escudo leve), toque 11, surpresa 16",
-    baseAttackGrapple: "+2 / +4",
-    attack: "Maça-estrela +5 corpo a corpo (1d8+2) ou Azagaia +3 distância (1d6+2)",
-    specialAttacks: "—",
-    specialQualities: "Visão no escuro 18m, Faro, +4 Furtividade",
-    saves: { fort: 2, ref: 4, will: 1 },
-    abilities: { str: 15, dex: 12, con: 13, int: 10, wis: 10, cha: 9 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 31",
-  },
-  {
-    id: "ogro",
-    name: "Ogro",
-    sizeAndType: "Gigante Grande",
-    challengeRating: "3",
-    hitDice: "4d8+11",
-    hp: 29,
-    initiative: -1,
-    speed: "9m (em gibão de peles)",
-    armorClass: "16 (-1 tamanho, -1 Des, +5 natural, +3 gibão de peles), toque 8, surpresa 16",
-    baseAttackGrapple: "+3 / +12",
-    attack: "Clava Grande +8 corpo a corpo (2d8+7) ou Azagaia +1 distância (1d8+5)",
-    specialAttacks: "Alcance 3m",
-    specialQualities: "Visão no escuro 18m, Visão na penumbra",
-    saves: { fort: 6, ref: 0, will: 1 },
-    abilities: { str: 21, dex: 8, con: 15, int: 6, wis: 10, cha: 7 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 201",
-  },
-  {
-    id: "troll",
-    name: "Troll",
-    sizeAndType: "Gigante Grande",
-    challengeRating: "5",
-    hitDice: "6d8+36",
-    hp: 63,
-    initiative: 2,
-    speed: "9m",
-    armorClass: "16 (-1 tamanho, +2 Des, +5 natural), toque 11, surpresa 14",
-    baseAttackGrapple: "+4 / +14",
-    attack: "2 Garras +9 corpo a corpo (1d6+6) e Mordida +4 (1d6+3)",
-    specialAttacks: "Dilacerar 2d6+9 (ao acertar ambas as garras)",
-    specialQualities: "Regeneração 5 (vulnerável a fogo e ácido), Visão no escuro 18m, Faro",
-    saves: { fort: 11, ref: 4, will: 3 },
-    abilities: { str: 23, dex: 14, con: 23, int: 6, wis: 9, cha: 6 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 249",
-  },
-  {
-    id: "rakshasa",
-    name: "Rakshasa (Bhishana Bhaga)",
-    sizeAndType: "Extra-Planar Médio (Nativo)",
-    challengeRating: "10",
-    hitDice: "7d8+21",
-    hp: 52,
-    initiative: 2,
-    speed: "12m",
-    armorClass: "21 (+2 Des, +9 natural), toque 12, surpresa 19",
-    baseAttackGrapple: "+7 / +8",
-    attack: "2 Garras +8 corpo a corpo (1d4+1) e Mordida +3 (1d6)",
-    specialAttacks: "Detectar Pensamentos (Sob, Vontade CD 18), Magias como Feiticeiro de 7º nível",
-    specialQualities: "RD 15/bem e perfurante, RM 27, Mudar Forma (Sob)",
-    saves: { fort: 8, ref: 7, will: 6 },
-    abilities: { str: 12, dex: 14, con: 16, int: 13, wis: 13, cha: 17 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 217 / Aventura N9",
-  },
-  {
-    id: "dragao-vermelho-jovem-adulto",
-    name: "Dragão Vermelho (Sventsoggviresh)",
-    sizeAndType: "Dragão Imenso (Fogo)",
-    challengeRating: "13",
-    hitDice: "19d12+95",
-    hp: 218,
-    initiative: 0,
-    speed: "12m, voo 45m (ruim)",
-    armorClass: "26 (-2 tamanho, +18 natural), toque 8, surpresa 26",
-    baseAttackGrapple: "+19 / +35",
-    attack: "Mordida +25 corpo a corpo (2d8+8), 2 Garras +23 (2d6+4), 2 Asas +23 (1d8+4), Cauda +23 (2d6+12)",
-    specialAttacks: "Sopro de Fogo (Cone de 15m, 10d10 fogo, Ref CD 24 reduz à metade), Presença Aterradora (CD 22), Magias (NC 5º)",
-    specialQualities: "Imunidade ao fogo, Vulnerabilidade ao frio, RD 5/mágica, RM 19, Percepção às Cegas 18m",
-    saves: { fort: 16, ref: 11, will: 14 },
-    abilities: { str: 27, dex: 10, con: 21, int: 14, wis: 15, cha: 14 },
-    sourcePage: "Livro dos Monstros 3.5, pág. 84 / Aventura N20",
-  },
-];
 
 export const DND_SPELLS: DndSpellEntry[] = [
   {
